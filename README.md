@@ -23,24 +23,24 @@ An encrypted Artix Linux system with OpenRC and Btrfs subvols for root, snapshot
 Post-installation networking is done with `connman`.
 
 ### Partition Scheme
-\# | Size | Type             | LUKS | FS
- - | -    | -                | -    | -
- 1 | 1G   | EFI System       |      | fat32
- 2 | ~4G  | Linux swap       | *    | swap
- 3 | FREE | Linux filesystem | *    | btrfs
+\# | Size | Type | LUKS | FS
+-|-|-|-|-
+1 | 1G | EFI System |  | fat32
+2 | ~16G | Linux swap | * | swap
+3 | FREE | Linux filesystem | * | btrfs
 
 ### Btrfs subvolumes
-\# | Name       | Mount
- - | -          | -
- 1 | @          | /
- 2 | @snapshots | /.snapshots
- 3 | @home      | /home
+\# | Name | Mount
+-|-|-
+1 | @ | /
+2 | @snapshots | /.snapshots
+3 | @home | /home
 
 ### Software
-Feature       | Name
--             | -
-Boot loader   | GRUB
-Filesystem    | Btrfs
+Feature | Name
+-|-
+Boot loader | GRUB
+Filesystem | Btrfs
 Init Software | OpenRC
-Networking    | connman
-Shell         | Zsh
+Networking | connman
+Shell | Zsh
