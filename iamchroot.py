@@ -70,7 +70,6 @@ disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True)
 
 run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable --recheck", shell=True)
 run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw initrd=amd-ucode.img initrd=intel-ucode.img initrd=initramfs-linux.img' >> /etc/default/grub", shell=True)
-run(f"printf '\n#GRUB_ENABLE_CRYPTODISK=y\n' >> /etc/default/grub", shell=True)
 run("nvim /etc/default/grub", shell=True)
 run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
 
