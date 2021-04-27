@@ -46,8 +46,8 @@ while True:
 run("cryptsetup close /dev/mapper/cryptroot", shell=True),
 run("cryptsetup close /dev/mapper/cryptswap", shell=True),
    
-run(f"yes YES | cryptsetup luksFormat {disk}3", shell=True)
-run(f"yes YES | cryptsetup luksFormat {disk}2", shell=True)
+run(f"cryptsetup luksFormat {disk}3", shell=True)
+run(f"cryptsetup luksFormat {disk}2", shell=True)
 
 run(f"cryptsetup open {disk}3 cryptroot", shell=True)
 run(f"cryptsetup open {disk}2 cryptswap", shell=True)
