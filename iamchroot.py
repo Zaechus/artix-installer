@@ -64,13 +64,15 @@ run(f"printf '{hostname}\n' > /etc/hostname", shell=True)
 run(f"printf '\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t{hostname}.localdomain\t{hostname}\n' > /etc/hosts", shell=True)
 
 # Install boot loader
-run("yes | pacman -S efibootmgr refind amd-ucode intel-ucode", shell=True)
+run("yes | pacman -S efibootmgr grub amd-ucode intel-ucode", shell=True)
 
 disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True).strip())[1:]
-run(f"printf '\"Boot with standard options\"  \"cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot resume=/dev/mapper/cryptswap rootflags=subvol=@ rw initrd=amd-ucode.img initrd=intel-ucode.img initrd=initramfs-linux.img\"\n' > /boot/refind_linux.conf", shell=True)
 
-run("refind-install", shell=True)
-run(f"refind-install --usedefault {disk}1", shell=True)
+run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable --recheck", shell=True)
+run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw initrd=amd-ucode.img initrd=intel-ucode.img initrd=initramfs-linux.img' >> /etc/default/grub", shell=True)
+run(f"printf '\n#GRUB_ENABLE_CRYPTODISK=y\n' >> /etc/default/grub", shell=True)
+run("nvim /etc/default/grub", shell=True)
+run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
 
 # Local.start
 run(f"printf 'rfkill unblock wifi\nneofetch >| /etc/issue\n' > /etc/local.d/local.start", shell=True)
