@@ -139,7 +139,7 @@ run("printf 'run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/" + str(swapuuid)
 run("printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap", shell=True)
 print("Add '/usr/bin/btrfs' to BINARIES")
 print("Use these hooks and binaries:")
-hooks_comment = "#HOOKS=(... autodetect keyboard keymap modconf block encrypt openswap resume filesystems ...)"
+hooks_comment = "#HOOKS=(... autodetect keyboard keymap modconf block encrypt openswap filesystems ...)"
 bins_comment = "#BINARIES=(/usr/bin/btrfs)"
 print(hooks_comment)
 print(bins_comment)
