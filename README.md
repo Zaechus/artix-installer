@@ -26,7 +26,7 @@ Post-installation networking is done with `connman`.
 \# | Size | Type | LUKS | FS
 -|-|-|-|-
 1 | 1G | EFI System |  | fat32
-2 | ~16G | Linux swap | * | swap
+2 | ~4G | Linux swap | * | swap
 3 | FREE | Linux filesystem | * | btrfs
 
 ### Btrfs subvolumes

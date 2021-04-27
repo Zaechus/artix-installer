@@ -30,7 +30,7 @@ while True:
     print('''Partition scheme:
         gpt
         1 New 1G 'EFI System'
-        2 New 16G 'Linux swap'
+        2 New 4G 'Linux swap'
         3 New *FREE 'Linux filesystem'
         Write yes Quit
     ''')
