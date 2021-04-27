@@ -43,26 +43,14 @@ while True:
         break
 
 # Setup encrypted partitions
-cryptpass = ""
-while True:
-    print("Encryption password", end=": ")
-    cryptpass = input().strip()
-    print("Repeat password", end=": ")
-    second = input().strip()
-
-    if cryptpass == second and len(cryptpass) > 1:
-        break
-run(f"printf '{cryptpass}' > /cryptpass.txt", shell=True)
 run("cryptsetup close /dev/mapper/cryptroot", shell=True),
 run("cryptsetup close /dev/mapper/cryptswap", shell=True),
    
-run(f"yes YES | cryptsetup luksFormat {disk}3 /cryptpass.txt", shell=True)
-run(f"yes YES | cryptsetup luksFormat {disk}2 /cryptpass.txt", shell=True)
+run(f"yes YES | cryptsetup luksFormat {disk}3", shell=True)
+run(f"yes YES | cryptsetup luksFormat {disk}2", shell=True)
 
-run("rm /cryptpass.txt", shell=True)
-
-run(f"yes '{cryptpass}' | cryptsetup open {disk}3 cryptroot", shell=True)
-run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
+run(f"cryptsetup open {disk}3 cryptroot", shell=True)
+run(f"cryptsetup open {disk}2 cryptswap", shell=True)
 
 # Format partitions
 run("mkswap /dev/mapper/cryptswap", shell=True)
