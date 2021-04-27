@@ -4,7 +4,7 @@ A stupid installer for Artix Linux
 
 ## Usage
 
-1. Run `sh preinstall.sh` to connect to the internet and install Python.
+1. Run `sh preinstall.sh` to connect to the internet and install Python (not necessary if you use ethernet and I believe Python is already on some images I've tested).
 2. Run `python install.py`.
 3. Run `artix-chroot /mnt /bin/bash`.
 4. Run `python /root/iamchroot.py` in the new system.
