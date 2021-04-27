@@ -46,11 +46,11 @@ while True:
 run("cryptsetup close /dev/mapper/cryptroot", shell=True),
 run("cryptsetup close /dev/mapper/cryptswap", shell=True),
 
-print("Additional cryptsetup options", end=": ")
+print("Additional cryptsetup options (--type luks1)", end=": ")
 luks_options = input().strip()
 
 run(f"cryptsetup luksFormat {luks_options} {disk}3", shell=True)
-run(f"cryptsetup luksFormat {luks_options} {disk}2", shell=True)
+run(f"cryptsetup luksFormat {disk}2", shell=True)
 
 run(f"cryptsetup open {disk}3 cryptroot", shell=True)
 run(f"cryptsetup open {disk}2 cryptswap", shell=True)
