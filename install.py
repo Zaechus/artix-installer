@@ -58,7 +58,7 @@ run(f"mkfs.fat -F 32 {disk}1", shell=True)
 run("mkfs.btrfs /dev/mapper/cryptroot", shell=True)
 
 # Create subvolumes
-run("umount -R /mnt/boot", shell=True)
+run("umount -R /mnt/boot/efi", shell=True)
 run("umount -R /mnt", shell=True)
 run("rm -rf /mnt", shell=True)
 run("mkdir /mnt", shell=True)
@@ -74,8 +74,8 @@ run("mkdir /mnt/.snapshots", shell=True)
 run("mkdir /mnt/home", shell=True)
 run("mount -o compress=zstd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots", shell=True)
 run("mount -o compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home", shell=True)
-run("mkdir /mnt/boot", shell=True)
-run(f"mount {disk}1 /mnt/boot", shell=True)
+run("mkdir -p /mnt/boot/efi", shell=True)
+run(f"mount {disk}1 /mnt/boot/efi", shell=True)
 
 # Install base system and kernel
 run("basestrap /mnt base base-devel openrc cryptsetup btrfs-progs python neovim", shell=True)
