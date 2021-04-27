@@ -143,8 +143,8 @@ hooks_comment = "#HOOKS=(... autodetect keyboard keymap modconf block encrypt op
 bins_comment = "#BINARIES=(/usr/bin/btrfs)"
 print(hooks_comment)
 print(bins_comment)
-run(f"printf '{hooks_comment}' >> /etc/mkinitcpio.conf", shell=True)
-run(f"printf '{bins_comment}' >> /etc/mkinitcpio.conf", shell=True)
+run(f"printf '\n{hooks_comment}' >> /etc/mkinitcpio.conf", shell=True)
+run(f"printf '\n{bins_comment}' >> /etc/mkinitcpio.conf", shell=True)
 print("[ENTER]", end=" ")
 input()
 run("nvim /etc/mkinitcpio.conf", shell=True)
