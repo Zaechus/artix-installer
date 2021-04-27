@@ -15,15 +15,8 @@ while True:
     break
 
 # Setup encrypted partitions
-cryptpass = ""
-while True:
-    print("Encryption password", end=": ")
-    cryptpass = input().strip()
-    print("Repeat password", end=": ")
-    second = input().strip()
-
-    if cryptpass == second and len(cryptpass) > 1:
-        break
+print("Encryption password", end=": ")
+cryptpass = input().strip()
 
 run(f"yes '{cryptpass}' | cryptsetup open {disk}3 cryptroot", shell=True)
 run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
@@ -32,4 +25,4 @@ run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
 run("mount -o compress=zstd,subvol=@ /dev/mapper/cryptroot /mnt", shell=True)
 run("mount -o compress=zstd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots", shell=True)
 run("mount -o compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home", shell=True)
-run(f"mount {disk}1 /mnt/boot", shell=True)
+run(f"mount {disk}1 /mnt/boot/efi", shell=True)
