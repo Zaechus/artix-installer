@@ -56,8 +56,8 @@ luks_options = input("Additional cryptsetup options (e.g. `--type luks1`): ").st
 
 cryptpass = make_password("\nSetting encryption password...\n")
 
-run(f"printf \"YES\n{cryptpass}\n{cryptpass}\n\" | cryptsetup luksFormat {luks_options} {disk}3", shell=True)
-run(f"printf \"YES\n{cryptpass}\n{cryptpass}\n\" | cryptsetup luksFormat {disk}2", shell=True)
+run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {luks_options} {disk}3", shell=True)
+run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {disk}2", shell=True)
 
 run(f"yes '{cryptpass}' | cryptsetup open {disk}3 cryptroot", shell=True)
 run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
