@@ -4,11 +4,11 @@ import sys
 
 from subprocess import run, check_output
 
-print("Installing Artix Linux with LUKS and Btrfs...\n")
+print("Installing Artix Linux...\n")
 
 # Check boot mode
 if len(check_output("ls /sys/firmware/efi/efivars", shell=True)) < 8:
-    print("\nNot booted in UEFI mode, aborting...")
+    print("\nNot booted in UEFI mode. Aborting...")
     sys.exit()
 
 # Load keymap
@@ -23,7 +23,7 @@ disk = ""
 while True:
     while True:
         run("fdisk -l", shell=True)
-        print("\nDisk to install to", end=": ")
+        print("\nDisk to install to (e.g. `/dev/sda`)", end=": ")
         disk = input().strip()
         if len(disk) > 0:
             break
@@ -46,7 +46,7 @@ while True:
 run("cryptsetup close /dev/mapper/cryptroot", shell=True),
 run("cryptsetup close /dev/mapper/cryptswap", shell=True),
 
-print("Additional cryptsetup options (--type luks1)", end=": ")
+print("Additional cryptsetup options (e.g. `--type luks1`)", end=": ")
 luks_options = input().strip()
 
 run(f"cryptsetup luksFormat {luks_options} {disk}3", shell=True)
@@ -86,7 +86,6 @@ run("basestrap /mnt linux linux-firmware linux-headers", shell=True)
 run("fstabgen -U /mnt >> /mnt/etc/fstab", shell=True)
 
 # Finish
-run("cp preinstall.sh /mnt/root/", shell=True)
 run("cp install.py /mnt/root/", shell=True)
 run("cp iamchroot.py /mnt/root/", shell=True)
 print("\nRun `artix-chroot /mnt /bin/bash`")
