@@ -48,6 +48,7 @@ run("hwclock --systohc", shell=True)
 input("Configure pacman (color, multilib, etc.). [ENTER] ")
 run("nvim /etc/pacman.conf", shell=True)
 run("printf '\nkeyserver hkp://keyserver.ubuntu.com\n' >> /etc/pacman.d/gnupg/gpg.conf", shell=True)
+run("nvim /etc/pacman.d/gnupg/gpg.conf", shell=True)
 run("pacman-key --populate artix", shell=True)
 
 run("yes | pacman -Syu neofetch", shell=True)
