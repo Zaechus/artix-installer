@@ -10,22 +10,21 @@ def handler(recv, frame):
 
 signal(SIGINT, handler)
 
-# Input vars
-print("Region", end=": ")
-region = input().strip()
-print("City", end=": ")
-city = input().strip()
-
 disk = ""
 while True:
     run("fdisk -l", shell=True)
-    print("\nDisk to install to", end=": ")
+    print("\nDisk to install to (e.g. `/dev/sda`)", end=": ")
     disk = input().strip()
     if len(disk) > 0:
         break
 
 # Boring stuff you should probably do
-run(f"ln -sf /usr/share/zoneinfo/{region}/{city} /etc/localtime", shell=True)
+print("Region/City (e.g. `America/Denver`)", end=": ")
+region_city = input().strip()
+if len(region_city) < 3:
+    region_city = "America/Denver"
+
+run(f"ln -sf /usr/share/zoneinfo/{region_city} /etc/localtime", shell=True)
 run("hwclock --systohc", shell=True)
 
 # Configure pacman
@@ -36,16 +35,16 @@ run("pacman-key --populate artix", shell=True)
 run("yes | pacman -Syu neofetch", shell=True)
 
 # Localization
-print("Uncomment locales. [ENTER]", end=" ")
+print("Uncomment locales (en_US.UTF-8). [ENTER]", end=" ")
 input()
 run("nvim /etc/locale.gen", shell=True)
 run("locale-gen", shell=True)
-print("LANG", end="=")
+print("LANG (en_US.UTF-8)", end=": ")
 lang = input().strip()
 if len(lang) < 2:
     lang = "en_US.UTF-8"
 
-print("KEYMAP", end="=")
+print("KEYMAP (us)", end=": ")
 keymap = input().strip()
 if len(keymap) < 2:
     keymap = "us"
@@ -69,6 +68,10 @@ run("yes | pacman -S efibootmgr grub amd-ucode intel-ucode", shell=True)
 disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True).strip())[1:]
 
 run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw initrd=amd-ucode.img initrd=intel-ucode.img initrd=initramfs-linux.img' >> /etc/default/grub", shell=True)
+
+print("Configure GRUB with the correct boot options and settings. [ENTER]")
+input()
+
 run("nvim /etc/default/grub", shell=True)
 run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable --recheck", shell=True)
 run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
@@ -137,7 +140,6 @@ run("printf '/dev/mapper/cryptswap\t\tswap\t\tswap\t\tdefaults\t0 0' >> /etc/fst
 swapuuid = str(check_output(f"sudo blkid {disk}2 -o value -s UUID", shell=True).strip())[1:]
 run("printf 'run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/" + str(swapuuid) + " cryptswap\n}\n' > /etc/initcpio/hooks/openswap", shell=True)
 run("printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap", shell=True)
-print("Add '/usr/bin/btrfs' to BINARIES")
 print("Use these hooks and binaries:")
 hooks_comment = "#HOOKS=(... autodetect keyboard keymap modconf block encrypt openswap filesystems ...)"
 bins_comment = "#BINARIES=(/usr/bin/btrfs)"
