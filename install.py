@@ -59,8 +59,8 @@ cryptpass = make_password("\nSetting encryption password...\n")
 run(f"printf 'YES\n{cryptpass}\n{cryptpass}\n' | cryptsetup luksFormat {luks_options} {disk}3", shell=True)
 run(f"printf 'YES\n{cryptpass}\n{cryptpass}\n' | cryptsetup luksFormat {disk}2", shell=True)
 
-run(f"yes {cryptpass} | cryptsetup open {disk}3 cryptroot", shell=True)
-run(f"yes {cryptpass} | cryptsetup open {disk}2 cryptswap", shell=True)
+run(f"yes '{cryptpass}' | cryptsetup open {disk}3 cryptroot", shell=True)
+run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
 
 # Format partitions
 run("mkswap /dev/mapper/cryptswap", shell=True)
