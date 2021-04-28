@@ -4,6 +4,16 @@ import sys
 
 from subprocess import run, check_output
 
+def make_password(s):
+    print(s, end="")
+
+    while True:
+        password = input("Password: ").strip()
+        second = input("Repeat password: ").strip()
+
+        if password == second and len(password) > 1:
+            break
+
 print("Installing Artix Linux...\n")
 
 # Check boot mode
@@ -35,7 +45,7 @@ while True:
     run(f"cfdisk {disk}", shell=True)
     
     choice = input(f"\nInstall on '{disk}'? (y/N): ").strip()
-    if len(choice) > 0 and choice[0] == "y":
+    if choice == "y":
         break
 
 # Setup encrypted partitions
@@ -44,11 +54,13 @@ run("cryptsetup close /dev/mapper/cryptswap", shell=True),
 
 luks_options = input("Additional cryptsetup options (e.g. `--type luks1`): ").strip()
 
-run(f"cryptsetup luksFormat {luks_options} {disk}3", shell=True)
-run(f"cryptsetup luksFormat {disk}2", shell=True)
+cryptpass = make_password("\nSetting encryption password...\n")
 
-run(f"cryptsetup open {disk}3 cryptroot", shell=True)
-run(f"cryptsetup open {disk}2 cryptswap", shell=True)
+run(f"printf 'YES\n{cryptpass}\n{cryptpass}\n' | cryptsetup luksFormat {luks_options} {disk}3", shell=True)
+run(f"printf 'YES\n{cryptpass}\n{cryptpass}\n' | cryptsetup luksFormat {disk}2", shell=True)
+
+run(f"yes {cryptpass} | cryptsetup open {disk}3 cryptroot", shell=True)
+run(f"yes {cryptpass} | cryptsetup open {disk}2 cryptswap", shell=True)
 
 # Format partitions
 run("mkswap /dev/mapper/cryptswap", shell=True)

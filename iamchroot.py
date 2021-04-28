@@ -5,6 +5,8 @@ import sys
 from signal import signal, SIGINT
 from subprocess import run, check_output
 
+from install import make_password
+
 def handler(recv, frame):
     sys.exit()
 
@@ -90,16 +92,7 @@ run("chmod +x /etc/local.d/local.start", shell=True)
 run("yes | pacman -S zsh", shell=True)
 run("chsh -s /bin/zsh", shell=True)
 
-def make_password():
-    while True:
-        password = input("Password: ").strip()
-        second = input("Repeat password: ").strip()
-
-        if password == second and len(password) > 1:
-            break
-
-print("\nChanging root password...")
-root_password = make_password()
+root_password = make_password("\nChanging root password...\n")
 run(f"yes '{root_password}' | passwd", shell=True)
 
 run("rm /etc/skel/.bash*", shell=True)
@@ -108,11 +101,14 @@ run("useradd -D -s /bin/zsh", shell=True)
 username = ""
 while True:
     username = input("Username: ").strip()
+
     if len(username) > 1:
-        break
+        choice = input("Is '{username}' a good username? (y/N): ").strip()
+        if choice == "y":
+            break
 run(f"useradd -m {username}", shell=True)
 
-user_password = make_password()
+user_password = make_password("")
 run(f"yes '{user_password}' | passwd {username}", shell=True)
 run(f"usermod -a -G wheel {username}", shell=True)
 run(f"usermod -a -G video {username}", shell=True)
