@@ -18,7 +18,7 @@ def make_password(s):
         second = input("Repeat password: ").strip()
 
         if password == second and len(password) > 1:
-            break
+            return password
 
 def confirm_name(s):
     while True:

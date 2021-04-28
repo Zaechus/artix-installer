@@ -12,7 +12,7 @@ def make_password(s):
         second = input("Repeat password: ").strip()
 
         if password == second and len(password) > 1:
-            break
+            return password
 
 print("Installing Artix Linux...\n")
 
