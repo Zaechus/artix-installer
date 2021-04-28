@@ -5,12 +5,20 @@ import sys
 from signal import signal, SIGINT
 from subprocess import run, check_output
 
-from install import make_password
-
 def handler(recv, frame):
     sys.exit()
 
 signal(SIGINT, handler)
+
+def make_password(s):
+    print(s, end="")
+
+    while True:
+        password = input("Password: ").strip()
+        second = input("Repeat password: ").strip()
+
+        if password == second and len(password) > 1:
+            break
 
 disk = ""
 while True:
