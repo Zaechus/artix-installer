@@ -8,15 +8,13 @@ disk = ""
 while True:
     while True:
         run("fdisk -l", shell=True)
-        print("\nDisk to mount (e.g. `/dev/sda`)", end=": ")
-        disk = input().strip()
+        disk = input("\nDisk to mount (e.g. `/dev/sda`): ").strip()
         if len(disk) > 0:
             break
     break
 
 # Setup encrypted partitions
-print("Encryption password", end=": ")
-cryptpass = input().strip()
+cryptpass = input("Encryption password: ").strip()
 
 run(f"yes '{cryptpass}' | cryptsetup open {disk}3 cryptroot", shell=True)
 run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)

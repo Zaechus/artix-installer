@@ -13,14 +13,12 @@ signal(SIGINT, handler)
 disk = ""
 while True:
     run("fdisk -l", shell=True)
-    print("\nDisk to install to (e.g. `/dev/sda`)", end=": ")
-    disk = input().strip()
+    disk = input("\nDisk to install to (e.g. `/dev/sda`): ").strip()
     if len(disk) > 0:
         break
 
 # Boring stuff you should probably do
-print("Region/City (e.g. `America/Denver`)", end=": ")
-region_city = input().strip()
+region_city = input("Region/City (e.g. `America/Denver`): ").strip()
 if len(region_city) < 3:
     region_city = "America/Denver"
 
@@ -28,8 +26,7 @@ run(f"ln -sf /usr/share/zoneinfo/{region_city} /etc/localtime", shell=True)
 run("hwclock --systohc", shell=True)
 
 # Configure pacman
-print("Configure pacman (color, multilib, etc.).", end=" [ENTER] ")
-input()
+input("Configure pacman (color, multilib, etc.). [ENTER] ")
 run("nvim /etc/pacman.conf", shell=True)
 run("printf '\nkeyserver hkp://keyserver.ubuntu.com\n' >> /etc/pacman.d/gnupg/gpg.conf", shell=True)
 run("pacman-key --populate artix", shell=True)
@@ -37,17 +34,14 @@ run("pacman-key --populate artix", shell=True)
 run("yes | pacman -Syu neofetch", shell=True)
 
 # Localization
-print("Uncomment locales (en_US.UTF-8).", end=" [ENTER] ")
-input()
+input("Uncomment locales (en_US.UTF-8). [ENTER] ")
 run("nvim /etc/locale.gen", shell=True)
 run("locale-gen", shell=True)
-print("LANG (en_US.UTF-8)", end=": ")
-lang = input().strip()
+lang = input("LANG (en_US.UTF-8): ").strip()
 if len(lang) < 2:
     lang = "en_US.UTF-8"
 
-print("KEYMAP (us)", end=": ")
-keymap = input().strip()
+keymap = input("KEYMAP (us): ").strip()
 if len(keymap) < 2:
     keymap = "us"
 
@@ -57,22 +51,32 @@ run(f"printf 'KEYMAP={keymap}\n' > /etc/vconsole.conf", shell=True)
 # Host stuff
 hostname = ""
 while True:
-    print("Hostname", end=": ")
-    hostname = input().strip()
+    hostname = input("Hostname: ").strip()
     if len(hostname) > 1:
         break
 run(f"printf '{hostname}\n' > /etc/hostname", shell=True)
 run(f"printf '\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t{hostname}.localdomain\t{hostname}\n' > /etc/hosts", shell=True)
 
 # Install boot loader
-run("yes | pacman -S efibootmgr grub amd-ucode intel-ucode", shell=True)
+ucode = input(
+    "\nDesired microcode packages:"
+    "\n(1)  Intel"
+    "\n(2)  AMD"
+    "\n(3+) Both\n: "
+).strip()
+if ucode == "1":
+    ucode = "intel-ucode"
+elif ucode == "2":
+    ucode = "amd-ucode"
+else:
+    ucode = "amd-ucode intel-ucode"
+
+run("yes | pacman -S efibootmgr grub {ucode}", shell=True)
 
 disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True).strip())[1:]
+run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@' >> /etc/default/grub", shell=True)
 
-run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw initrd=amd-ucode.img initrd=intel-ucode.img initrd=initramfs-linux.img' >> /etc/default/grub", shell=True)
-
-print("Configure GRUB (boot options, encryption, console, etc.).", end=" [ENTER] ")
-input()
+input("Configure GRUB (boot options, encryption, console, etc.). [ENTER] ")
 
 run("nvim /etc/default/grub", shell=True)
 run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable --recheck", shell=True)
@@ -86,54 +90,43 @@ run("chmod +x /etc/local.d/local.start", shell=True)
 run("yes | pacman -S zsh", shell=True)
 run("chsh -s /bin/zsh", shell=True)
 
+def make_password():
+    while True:
+        password = input("Password: ").strip()
+        second = input("Repeat password: ").strip()
+
+        if password == second and len(password) > 1:
+            break
+
 print("\nChanging root password...")
-password = ""
-while True:
-    print("Password", end=": ")
-    password = input().strip()
-    print("Repeat password", end=": ")
-    second = input().strip()
-    
-    if password == second and len(password) > 1:
-        break
-run(f"yes '{password}' | passwd", shell=True)
+root_password = make_password()
+run(f"yes '{root_password}' | passwd", shell=True)
 
 run("rm /etc/skel/.bash*", shell=True)
 run("useradd -D -s /bin/zsh", shell=True)
 
 username = ""
 while True:
-    print("Username", end=": ")
-    username = input().strip()
+    username = input("Username: ").strip()
     if len(username) > 1:
         break
 run(f"useradd -m {username}", shell=True)
 
-password = ""
-while True:
-    print("Password", end=": ")
-    password = input().strip()
-    print("Repeat password", end=": ")
-    second = input().strip()
-    
-    if password == second and len(password) > 1:
-        break
-run(f"yes '{password}' | passwd {username}", shell=True)
+user_password = make_password()
+run(f"yes '{user_password}' | passwd {username}", shell=True)
 run(f"usermod -a -G wheel {username}", shell=True)
 run(f"usermod -a -G video {username}", shell=True)
 run(f"usermod -a -G games {username}", shell=True)
 run(f"usermod -a -G lp {username}", shell=True)
 run(f"usermod -a -G audio {username}", shell=True)
 
-print("Allow wheel users to use sudo.", end=" [ENTER] ")
-input()
+input("Allow wheel users to use sudo. [ENTER] ")
 run("EDITOR=nvim visudo", shell=True)
 
 # Other stuff you should do or you'll be sad
 run("yes | pacman -S dhcpcd wpa_supplicant connman-openrc", shell=True)
 run("rc-update add connmand", shell=True)
-print("MOTD", end=": ")
-motd = input().strip()
+motd = input("MOTD: ").strip()
 run(f"printf '\n{motd}\n\n' > /etc/motd", shell=True)
 
 run("printf '/dev/mapper/cryptswap\t\tswap\t\tswap\t\tdefaults\t0 0' >> /etc/fstab", shell=True)
@@ -149,8 +142,7 @@ print(hooks_comment)
 print(bins_comment)
 run(f"printf '\n{hooks_comment}' >> /etc/mkinitcpio.conf", shell=True)
 run(f"printf '\n{bins_comment}' >> /etc/mkinitcpio.conf", shell=True)
-print("[ENTER]", end=" ")
-input()
+input("[ENTER] ")
 run("nvim /etc/mkinitcpio.conf", shell=True)
 run("mkinitcpio -P", shell=True)
 

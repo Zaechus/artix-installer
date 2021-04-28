@@ -12,8 +12,7 @@ if len(check_output("ls /sys/firmware/efi/efivars", shell=True)) < 8:
     sys.exit()
 
 # Load keymap
-print("\nKeymap", end=" (us): ")
-keymap = input().strip()
+keymap = input("\nKeymap (us): ").strip()
 if len(keymap) < 2:
     keymap = "us"
 run(f"loadkeys {keymap}", shell=True)
@@ -23,22 +22,19 @@ disk = ""
 while True:
     while True:
         run("fdisk -l", shell=True)
-        print("\nDisk to install to (e.g. `/dev/sda`)", end=": ")
-        disk = input().strip()
+        disk = input("\nDisk to install to (e.g. `/dev/sda`): ").strip()
         if len(disk) > 0:
             break
-    print('''Partition scheme:
-        gpt
-        1 New 1G 'EFI System'
-        2 New 4G 'Linux swap'
-        3 New *FREE 'Linux filesystem'
-        Write yes Quit
-    ''')
-    input()
+    input('''Partitioning:
+    gpt
+    1 New 1G    'EFI System'
+    2 New 4G    'Linux swap'
+    3 New *FREE 'Linux filesystem'
+    Write yes Quit
+    [ENTER] ''')
     run(f"cfdisk {disk}", shell=True)
     
-    print(f"\nInstall on '{disk}'?", end=" (y/N): ")
-    choice = input().strip()
+    choice = input(f"\nInstall on '{disk}'? (y/N): ").strip()
     if len(choice) > 0 and choice[0] == "y":
         break
 
@@ -46,8 +42,7 @@ while True:
 run("cryptsetup close /dev/mapper/cryptroot", shell=True),
 run("cryptsetup close /dev/mapper/cryptswap", shell=True),
 
-print("Additional cryptsetup options (e.g. `--type luks1`)", end=": ")
-luks_options = input().strip()
+luks_options = input("Additional cryptsetup options (e.g. `--type luks1`): ").strip()
 
 run(f"cryptsetup luksFormat {luks_options} {disk}3", shell=True)
 run(f"cryptsetup luksFormat {disk}2", shell=True)
