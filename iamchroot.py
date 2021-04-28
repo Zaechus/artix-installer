@@ -25,9 +25,9 @@ def confirm_name(s):
         name = input(f"{s.capitalize()}: ").strip()
 
         if len(name) > 1:
-            choice = input(f"Is '{name}' a good {s.lower()}? (y/N): ").strip()
+            choice = input(f"Would you like '{name}' to be your {s.lower()}? (y/N): ").strip()
             if choice == "y":
-                break
+                return name
 
 disk = ""
 while True:
