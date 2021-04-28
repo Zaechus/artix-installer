@@ -28,6 +28,8 @@ run(f"ln -sf /usr/share/zoneinfo/{region_city} /etc/localtime", shell=True)
 run("hwclock --systohc", shell=True)
 
 # Configure pacman
+print("Configure pacman (color, multilib, etc.).", end=" [ENTER] ")
+input()
 run("nvim /etc/pacman.conf", shell=True)
 run("printf '\nkeyserver hkp://keyserver.ubuntu.com\n' >> /etc/pacman.d/gnupg/gpg.conf", shell=True)
 run("pacman-key --populate artix", shell=True)
@@ -35,7 +37,7 @@ run("pacman-key --populate artix", shell=True)
 run("yes | pacman -Syu neofetch", shell=True)
 
 # Localization
-print("Uncomment locales (en_US.UTF-8). [ENTER]", end=" ")
+print("Uncomment locales (en_US.UTF-8).", end=" [ENTER] ")
 input()
 run("nvim /etc/locale.gen", shell=True)
 run("locale-gen", shell=True)
@@ -69,7 +71,7 @@ disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True)
 
 run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw initrd=amd-ucode.img initrd=intel-ucode.img initrd=initramfs-linux.img' >> /etc/default/grub", shell=True)
 
-print("Configure GRUB with the correct boot options and settings. [ENTER]")
+print("Configure GRUB (boot options, encryption, console, etc.).", end=" [ENTER] ")
 input()
 
 run("nvim /etc/default/grub", shell=True)
@@ -123,7 +125,7 @@ run(f"usermod -a -G games {username}", shell=True)
 run(f"usermod -a -G lp {username}", shell=True)
 run(f"usermod -a -G audio {username}", shell=True)
 
-print("Allow wheel users to use sudo. [ENTER]", end="")
+print("Allow wheel users to use sudo.", end=" [ENTER] ")
 input()
 run("EDITOR=nvim visudo", shell=True)
 
