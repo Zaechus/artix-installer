@@ -2,13 +2,13 @@
 
 import sys
 
-from subprocess import run, check_output
+from subprocess import run
 
 disk = ""
 while True:
     while True:
         run("fdisk -l", shell=True)
-        print("\nDisk to mount", end=": ")
+        print("\nDisk to mount (e.g. `/dev/sda`)", end=": ")
         disk = input().strip()
         if len(disk) > 0:
             break
