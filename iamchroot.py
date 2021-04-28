@@ -140,7 +140,7 @@ swapuuid = str(check_output(f"sudo blkid {disk}2 -o value -s UUID", shell=True).
 run("printf 'run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/" + str(swapuuid) + " cryptswap\n}\n' > /etc/initcpio/hooks/openswap", shell=True)
 run("printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap", shell=True)
 print("Use these hooks and binaries:")
-hooks_comment = "#HOOKS=(... autodetect keyboard keymap modconf block encrypt openswap filesystems ...)"
+hooks_comment = "#HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)"
 bins_comment = "#BINARIES=(/usr/bin/btrfs)"
 print(hooks_comment)
 print(bins_comment)
