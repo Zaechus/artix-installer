@@ -133,7 +133,7 @@ motd = confirm_name("motd")
 run(f"printf '\n{motd}\n\n' > /etc/motd", shell=True)
 
 run("printf '\n/dev/mapper/cryptswap\t\tswap\t\tswap\t\tdefaults\t0 0\n' >> /etc/fstab", shell=True)
-run("nvim /etc/fstab")
+run("nvim /etc/fstab", shell=True)
 
 # Finally fix swap
 swapuuid = str(check_output(f"sudo blkid {disk}2 -o value -s UUID", shell=True).strip())[1:]
