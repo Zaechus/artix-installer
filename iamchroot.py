@@ -20,6 +20,15 @@ def make_password(s):
         if password == second and len(password) > 1:
             break
 
+def confirm_name(s):
+    while True:
+        name = input(f"{s.capitalize()}: ").strip()
+
+        if len(name) > 1:
+            choice = input("Is '{name}' a good {s.lower()}? (y/N): ").strip()
+            if choice == "y":
+                break
+
 disk = ""
 while True:
     run("fdisk -l", shell=True)
@@ -59,11 +68,7 @@ run(f"printf 'LANG={lang}\n' > /etc/locale.conf", shell=True)
 run(f"printf 'KEYMAP={keymap}\n' > /etc/vconsole.conf", shell=True)
 
 # Host stuff
-hostname = ""
-while True:
-    hostname = input("Hostname: ").strip()
-    if len(hostname) > 1:
-        break
+hostname = confirm_name("hostname")
 run(f"printf '{hostname}\n' > /etc/hostname", shell=True)
 run(f"printf '\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t{hostname}.localdomain\t{hostname}\n' > /etc/hosts", shell=True)
 
@@ -81,7 +86,7 @@ elif ucode == "2":
 else:
     ucode = "amd-ucode intel-ucode"
 
-run("yes | pacman -S efibootmgr grub {ucode}", shell=True)
+run(f"yes | pacman -S efibootmgr grub {ucode}", shell=True)
 
 disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True).strip())[1:]
 run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@' >> /etc/default/grub", shell=True)
@@ -106,14 +111,7 @@ run(f"yes '{root_password}' | passwd", shell=True)
 run("rm /etc/skel/.bash*", shell=True)
 run("useradd -D -s /bin/zsh", shell=True)
 
-username = ""
-while True:
-    username = input("Username: ").strip()
-
-    if len(username) > 1:
-        choice = input("Is '{username}' a good username? (y/N): ").strip()
-        if choice == "y":
-            break
+username = confirm_name("username")
 run(f"useradd -m {username}", shell=True)
 
 user_password = make_password("")
@@ -130,7 +128,7 @@ run("EDITOR=nvim visudo", shell=True)
 # Other stuff you should do or you'll be sad
 run("yes | pacman -S dhcpcd wpa_supplicant connman-openrc", shell=True)
 run("rc-update add connmand", shell=True)
-motd = input("MOTD: ").strip()
+motd = confirm_name("motd")
 run(f"printf '\n{motd}\n\n' > /etc/motd", shell=True)
 
 run("printf '/dev/mapper/cryptswap\t\tswap\t\tswap\t\tdefaults\t0 0' >> /etc/fstab", shell=True)
