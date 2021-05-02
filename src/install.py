@@ -42,9 +42,10 @@ while True:
         run(f"dd bs=4096 if=/dev/zero iflag=nocache of={disk} oflag=direct status=progress", shell=True)
 
     swap_size = input("Size of swap partition (4GiB): ").strip()
-    swap_size = int("".join([x for x in swap_size if x.isdigit()]))
+    swap_size = "".join([x for x in swap_size if x.isdigit()])
     if swap_size == "":
-        swap_size = 4
+        swap_size = "4"
+    swap_size = int(swap_size)
 
     run(f"""parted -s {disk} mktable gpt \\
 mkpart primary boot fat32 0% 1GiB \\
