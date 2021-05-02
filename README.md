@@ -46,7 +46,7 @@ Post-installation networking is done with `connman`.
 ### Software
 Feature | Name
 -|-
-Boot loader | GRUB
+Boot loader | rEFInd or GRUB
 Filesystem | Btrfs
 Init Software | OpenRC
 Networking | connman

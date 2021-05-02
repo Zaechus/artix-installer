@@ -69,23 +69,43 @@ ucode = input(
     "\n(2)  AMD"
     "\n(3+) Both\n: "
 ).strip()
+ucode_img = ""
 if ucode == "1":
+    ucode_img = "initrd=intel-ucode.img"
     ucode = "intel-ucode"
 elif ucode == "2":
+    ucode_img = "initrd=amd-ucode.img"
     ucode = "amd-ucode"
 else:
+    ucode_img = "initrd=amd-ucode.img initrd=intel-ucode.img"
     ucode = "amd-ucode intel-ucode"
 
-run(f"yes | pacman -S efibootmgr grub {ucode}", shell=True)
+boot_loader = input(
+    "\nDesired boot loader:"
+    "\n(1) rEFInd"
+    "\n(2) GRUB\n: "
+).strip()
+if boot_loader == "1":
+    boot_loader == "refind"
+else:
+    boot_loader = "grub"
 
+run(f"yes | pacman -S efibootmgr {boot_loader} {ucode}", shell=True)
 disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True).strip())[1:]
-run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@' >> /etc/default/grub", shell=True)
 
-input("Configure GRUB (boot options, encryption, console, etc.). [ENTER] ")
+if boot_loader == "refind":
+    run(f"printf '\"Boot with standard options\"  \"cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw {ucode_img} initrd=initramfs-linux.img\"\n' > /boot/refind_linux.conf", shell=True)
 
-run("nvim /etc/default/grub", shell=True)
-run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ARTIXGRUB --removable --recheck", shell=True)
-run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
+    run("refind-install", shell=True)
+    run(f"refind-install --usedefault {disk}1", shell=True)
+elif boot_loader == "grub":
+    run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@' >> /etc/default/grub", shell=True)
+
+    input("Configure GRUB (boot options, encryption, console, etc.). [ENTER] ")
+
+    run("nvim /etc/default/grub", shell=True)
+    run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ARTIXGRUB --removable --recheck", shell=True)
+    run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
 
 # Local.start
 run(f"printf 'rfkill unblock wifi\nneofetch >| /etc/issue\n' > /etc/local.d/local.start", shell=True)
