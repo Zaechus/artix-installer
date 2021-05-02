@@ -28,16 +28,9 @@ if len(keymap) < 2:
 run(f"loadkeys {keymap}", shell=True)
 
 # Partition disk
-disk = ""
+disk = check_output(f"echo -n $MY_DISK", shell=True).decode("utf-8").strip()
 run("yes | pacman -Sy --needed parted", shell=True)
 while True:
-    while True:
-        run("sfdisk -l", shell=True)
-        disk = input("\nDisk to install to (e.g. `/dev/sda`): ").strip()
-        if len(disk) > 0:
-            run(f"export MY_DISK=\"{disk}\"", shell=True)
-            break
-
     erase = input("Would you like to erase the contents of the disk? (y/N): ").strip()
     if erase == "y":
         run(f"dd bs=4096 if=/dev/zero iflag=nocache of={disk} oflag=direct status=progress", shell=True)

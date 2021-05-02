@@ -21,7 +21,7 @@ def confirm_name(s):
             if choice == "y":
                 return name
 
-disk = check_output(f"printf \"$MY_DISK\"", shell=True).decode("utf-8").strip()
+disk = check_output(f"echo -n $MY_DISK", shell=True).decode("utf-8").strip()
 
 # Boring stuff you should probably do
 region_city = input("Region/City (e.g. `America/Denver`): ").strip()
