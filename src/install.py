@@ -41,6 +41,25 @@ if swap_size == "":
     swap_size = "4"
 swap_size = int(swap_size)
 
+fs_type = input(
+    "\nDesired filesystem:"
+    "\n(1)  ext4"
+    "\n(2)  ZFS"
+    "\n(3+) Btrfs\n: "
+).strip()
+root_part = f"{disk}2"
+fs_pkgs = ""
+if fs_type == "1":
+    fs_type = "ext4"
+    fs_pkgs = "cryptsetup lvm2 lvm2-openrc"
+elif fs_type == "2":
+    fs_type = "zfs"
+    fs_pkgs = "zfs-dkms"
+else:
+    fs_type = "btrfs"
+    root_part = f"{disk}3"
+    fs_pkgs = "cryptsetup btrfs-progs"
+
 run("umount -Rq /mnt/boot/efi > /dev/null", shell=True)
 run("umount -Rq /mnt > /dev/null", shell=True)
 run("cryptsetup -q close /dev/mapper/cryptroot > /dev/null", shell=True),
@@ -65,38 +84,54 @@ if choice == "y":
 run(f"sfdisk -l {disk}", shell=True)
 
 # Setup encrypted partitions
-luks_options = input("\nAdditional cryptsetup options (e.g. `--type luks1`): ").strip()
-
 cryptpass = make_password("\nSetting encryption password...\n")
 
-run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {luks_options} {disk}3", shell=True)
-run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {disk}2", shell=True)
+if fs_type == "ext4" or fs_type == "btrfs":
+    luks_options = input("\nAdditional cryptsetup options (e.g. `--type luks1`): ").strip()
 
-run(f"yes '{cryptpass}' | cryptsetup open {disk}3 cryptroot", shell=True)
-run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
+    run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {luks_options} {root_part}", shell=True)
+    run(f"yes '{cryptpass}' | cryptsetup open {root_part} cryptroot", shell=True)
 
-# Format partitions
-run("mkswap /dev/mapper/cryptswap", shell=True)
+if fs_type == "btrfs":
+    run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {disk}2", shell=True)
+    run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
+
+# Format partitions and mount
 run(f"mkfs.fat -F 32 {disk}1", shell=True)
-run("mkfs.btrfs /dev/mapper/cryptroot", shell=True)
 
-# Create subvolumes
-run("mount /dev/mapper/cryptroot /mnt", shell=True)
-run("btrfs subvolume create /mnt/@", shell=True)
-run("btrfs subvolume create /mnt/@snapshots", shell=True)
-run("btrfs subvolume create /mnt/@home", shell=True)
-run("umount -R /mnt", shell=True)
+if fs_type == "ext4":
+    # Setup LVM
+    run("pvcreate /dev/mapper/cryptroot", shell=True)
+    run("vgcreate MyVolGrp /dev/mapper/cryptroot", shell=True)
+    run("lvcreate -L {swap_size} MyVolGrp -n swap", shell=True)
+    run("lvcreate -l 100%FREE MyVolGrp -n root", shell=True)
 
-# Mount subvolumes and boot
-run("mount -o compress=zstd,subvol=@ /dev/mapper/cryptroot /mnt", shell=True)
-run("mkdir /mnt/.snapshots", shell=True)
-run("mkdir /mnt/home", shell=True)
-run("mount -o compress=zstd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots", shell=True)
-run("mount -o compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home", shell=True)
+    run("mkswap /dev/MyVolGrp/swap", shell=True)
+    run("mkfs.ext4 /dev/MyVolGrp/root", shell=True)
+
+    run("mount /dev/MyVolGrp/root /mnt", shell=True)
+elif fs_type == "btrfs":
+    run("mkswap /dev/mapper/cryptswap", shell=True)
+    run("mkfs.btrfs /dev/mapper/cryptroot", shell=True)
+
+    # Create subvolumes
+    run("mount /dev/mapper/cryptroot /mnt", shell=True)
+    run("btrfs subvolume create /mnt/@", shell=True)
+    run("btrfs subvolume create /mnt/@snapshots", shell=True)
+    run("btrfs subvolume create /mnt/@home", shell=True)
+    run("umount -R /mnt", shell=True)
+
+    # Mount subvolumes
+    run("mount -o compress=zstd,subvol=@ /dev/mapper/cryptroot /mnt", shell=True)
+    run("mkdir /mnt/.snapshots", shell=True)
+    run("mkdir /mnt/home", shell=True)
+    run("mount -o compress=zstd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots", shell=True)
+    run("mount -o compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home", shell=True)
+
 run("mkdir -p /mnt/boot/efi", shell=True)
 run(f"mount {disk}1 /mnt/boot/efi", shell=True)
 
 # Install base system and kernel
-run("basestrap /mnt base base-devel openrc cryptsetup btrfs-progs python neovim parted", shell=True)
+run(f"basestrap /mnt base base-devel openrc {fs_pkgs} python neovim parted", shell=True)
 run("basestrap /mnt linux linux-firmware linux-headers", shell=True)
 run("fstabgen -U /mnt >> /mnt/etc/fstab", shell=True)
