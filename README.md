@@ -48,6 +48,6 @@ Feature | Name
 -|-
 Boot loader | rEFInd or GRUB
 Filesystem | Btrfs
-Init Software | OpenRC
+Init System | OpenRC
 Networking | connman
 Shell | Zsh
