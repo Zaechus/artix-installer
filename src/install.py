@@ -41,10 +41,10 @@ if swap_size == "":
     swap_size = "4"
 swap_size = int(swap_size)
 
-run("umount -R /mnt/boot/efi > /dev/null", shell=True)
-run("umount -R /mnt > /dev/null", shell=True)
-run("cryptsetup close /dev/mapper/cryptroot > /dev/null", shell=True),
-run("cryptsetup close /dev/mapper/cryptswap > /dev/null", shell=True),
+run("umount -Rq /mnt/boot/efi > /dev/null", shell=True)
+run("umount -Rq /mnt > /dev/null", shell=True)
+run("cryptsetup -q close /dev/mapper/cryptroot > /dev/null", shell=True),
+run("cryptsetup -q close /dev/mapper/cryptswap > /dev/null", shell=True),
 run("rm -rf /mnt > /dev/null", shell=True)
 run("mkdir /mnt > /dev/null", shell=True)
 
