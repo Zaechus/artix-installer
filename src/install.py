@@ -35,6 +35,7 @@ while True:
         run("sfdisk -l", shell=True)
         disk = input("\nDisk to install to (e.g. `/dev/sda`): ").strip()
         if len(disk) > 0:
+            run(f"export MY_DISK=\"{disk}\"", shell=True)
             break
 
     erase = input("Would you like to erase the contents of the disk? (y/N): ").strip()

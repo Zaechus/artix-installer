@@ -12,7 +12,7 @@ sudo python src/install.py
 sudo cp src/iamchroot.py /mnt/root/
 
 # chroot
-sudo artix-chroot /mnt /bin/bash -c "python /root/iamchroot.py && exit"
+sudo artix-chroot /mnt /bin/bash -c "MY_DISK=$MY_DISK python /root/iamchroot.py && exit"
 
 # clean up
 sudo umount -R /mnt

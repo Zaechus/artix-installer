@@ -21,12 +21,7 @@ def confirm_name(s):
             if choice == "y":
                 return name
 
-disk = ""
-while True:
-    run("sfdisk -l", shell=True)
-    disk = input("\nDisk to install to (e.g. `/dev/sda`): ").strip()
-    if len(disk) > 0:
-        break
+disk = check_output(f"printf $MY_DISK", shell=True).strip()
 
 # Boring stuff you should probably do
 region_city = input("Region/City (e.g. `America/Denver`): ").strip()
