@@ -23,7 +23,7 @@ def confirm_name(s):
 
 disk = ""
 while True:
-    run("fdisk -l", shell=True)
+    run("sfdisk -l", shell=True)
     disk = input("\nDisk to install to (e.g. `/dev/sda`): ").strip()
     if len(disk) > 0:
         break
