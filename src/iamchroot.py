@@ -86,7 +86,7 @@ boot_loader = input(
     "\n(2) GRUB\n: "
 ).strip()
 if boot_loader == "1":
-    boot_loader == "refind"
+    boot_loader = "refind"
 else:
     boot_loader = "grub"
 
