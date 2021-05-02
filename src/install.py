@@ -29,7 +29,7 @@ run(f"loadkeys {keymap}", shell=True)
 
 # Partition disk
 disk = ""
-run("pacman -Sy parted", shell=True)
+run("yes | pacman -Sy --needed parted", shell=True)
 while True:
     while True:
         run("sfdisk -l", shell=True)
