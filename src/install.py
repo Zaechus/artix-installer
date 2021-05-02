@@ -58,8 +58,8 @@ if choice == "y":
 run(f"sfdisk -l {disk}", shell=True)
 
 # Setup encrypted partitions
-run("cryptsetup close /dev/mapper/cryptroot", shell=True),
-run("cryptsetup close /dev/mapper/cryptswap", shell=True),
+run("cryptsetup close /dev/mapper/cryptroot > /dev/null", shell=True),
+run("cryptsetup close /dev/mapper/cryptswap > /dev/null", shell=True),
 
 luks_options = input("Additional cryptsetup options (e.g. `--type luks1`): ").strip()
 
@@ -77,10 +77,10 @@ run(f"mkfs.fat -F 32 {disk}1", shell=True)
 run("mkfs.btrfs /dev/mapper/cryptroot", shell=True)
 
 # Create subvolumes
-run("umount -R /mnt/boot/efi", shell=True)
-run("umount -R /mnt", shell=True)
-run("rm -rf /mnt", shell=True)
-run("mkdir /mnt", shell=True)
+run("umount -R /mnt/boot/efi > /dev/null", shell=True)
+run("umount -R /mnt > /dev/null", shell=True)
+run("rm -rf /mnt > /dev/null", shell=True)
+run("mkdir /mnt > /dev/null", shell=True)
 run("mount /dev/mapper/cryptroot /mnt", shell=True)
 run("btrfs subvolume create /mnt/@", shell=True)
 run("btrfs subvolume create /mnt/@snapshots", shell=True)
