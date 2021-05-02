@@ -17,5 +17,5 @@ sudo artix-chroot /mnt /bin/bash -c "python /root/iamchroot.py && exit"
 # clean up
 sudo umount -R /mnt
 sudo cryptsetup close /dev/mapper/cryptroot
-sudo cryptsetup close /dev/mapper/ctyptswap
+sudo cryptsetup close /dev/mapper/cryptswap
 echo "You may now poweroff."
