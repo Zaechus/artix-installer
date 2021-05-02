@@ -14,7 +14,7 @@ def make_password(s):
         if password == second and len(password) > 1:
             return password
 
-print("Installing Artix Linux...\n")
+print("\nInstalling Artix Linux...\n")
 
 # Check boot mode
 if len(check_output("ls /sys/firmware/efi/efivars", shell=True)) < 8:

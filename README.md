@@ -4,8 +4,12 @@ A stupid installer for Artix Linux
 
 ## Usage
 
-1. Run `./install.sh`.
-2. When everything finishes, `poweroff`.
+1. Boot into the Artix live disk
+2. Acquire the install scripts: `yes | sudo pacman -Sy --needed git && \
+git clone https://github.com/Zaechus/artix-installer && \
+cd artix-installer`
+3. Run `./install.sh`.
+4. When everything finishes, `poweroff`.
 
 ## Assumptions
 
