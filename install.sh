@@ -9,7 +9,7 @@ yes | sudo pacman -Sy --needed python
 
 # install
 sudo sfdisk -l
-echo -n "Disk to install to (e.g. /dev/sda): " && read MY_DISK && echo $MY_DISK
+printf "\nDisk to install to (e.g. /dev/sda): " && read MY_DISK && echo $MY_DISK
 sudo python src/install.py $MY_DISK
 sudo cp src/iamchroot.py /mnt/root/
 
