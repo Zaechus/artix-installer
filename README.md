@@ -4,7 +4,7 @@ A stupid installer for Artix Linux
 
 ## Usage
 
-1. Run `sh preinstall.sh` to connect to the internet and install Python (not necessary if you use ethernet and I believe Python is already on some images I've tested).
+1. Run `sh preinstall.sh` to connect to the internet and install Python (ethernet will already be autoconfigured and Python was already on the last image I tested).
 2. Run `python install.py`.
 3. Run `artix-chroot /mnt /bin/bash`.
 4. Run `python /root/iamchroot.py` in the new system.
@@ -12,7 +12,7 @@ A stupid installer for Artix Linux
 
 ## Assumptions
 
-* These scripts assume you are already booted into the Artix live disk or you at least have `artools` (it may be called something else now) on your system and have loaded all of the scripts in some way. In the live environment, I just used another USB drive that had the scripts and mounted it, but you can probably use `git` or `wget` the raw files directly.
+* These scripts assume you are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be loaded with `git`, another USB drive, or perhapts `wget`.
 * It also assumes you want what it wants and adhere to the occasional instructions it gives you, the user, to perform.
 * You're aware that you'll manually have to enter `--type luks1` as a luks option until GRUB gets upgraded from 2.0.4
 
