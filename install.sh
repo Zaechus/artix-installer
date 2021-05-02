@@ -3,7 +3,7 @@
 # preinstall
 sudo rfkill unblock wifi
 sudo ip link set wlan0 up
-echo "\n> scan wifi\n> services\n> agent on\n> connect wifi_NAME\n> quit"
+printf "\n> scan wifi\n> services\n> agent on\n> connect wifi_NAME\n> quit\n"
 sudo connmanctl
 yes | sudo pacman -Sy --needed python
 
