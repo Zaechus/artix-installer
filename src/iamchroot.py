@@ -87,7 +87,7 @@ run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptro
 input("Configure GRUB (boot options, encryption, console, etc.). [ENTER] ")
 
 run("nvim /etc/default/grub", shell=True)
-run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable --recheck", shell=True)
+run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ARTIXGRUB --removable --recheck", shell=True)
 run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
 
 # Local.start
