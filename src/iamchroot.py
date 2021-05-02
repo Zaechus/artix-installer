@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import sys
+
 from subprocess import run, check_output
 
 def make_password(s):
@@ -21,7 +23,7 @@ def confirm_name(s):
             if choice == "y":
                 return name
 
-disk = check_output(f"echo -n $MY_DISK", shell=True).decode("utf-8").strip()
+disk = sys.argv[1]
 
 # Boring stuff you should probably do
 region_city = input("Region/City (e.g. `America/Denver`): ").strip()

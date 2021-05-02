@@ -28,20 +28,20 @@ if len(keymap) < 2:
 run(f"loadkeys {keymap}", shell=True)
 
 # Partition disk
-disk = check_output(f"echo -n $MY_DISK", shell=True).decode("utf-8").strip()
+disk = sys.argv[1]
 run("yes | pacman -Sy --needed parted", shell=True)
-while True:
-    erase = input("Would you like to erase the contents of the disk? (y/N): ").strip()
-    if erase == "y":
-        run(f"dd bs=4096 if=/dev/zero iflag=nocache of={disk} oflag=direct status=progress", shell=True)
 
-    swap_size = input("Size of swap partition (4GiB): ").strip()
-    swap_size = "".join([x for x in swap_size if x.isdigit()])
-    if swap_size == "":
-        swap_size = "4"
-    swap_size = int(swap_size)
+erase = input(f"Would you like to erase the contents of {disk}? (y/N): ").strip()
+if erase == "y":
+    run(f"dd bs=4096 if=/dev/zero iflag=nocache of={disk} oflag=direct status=progress", shell=True)
 
-    run(f"""parted -s {disk} mktable gpt \\
+swap_size = input("Size of swap partition (4GiB): ").strip()
+swap_size = "".join([x for x in swap_size if x.isdigit()])
+if swap_size == "":
+    swap_size = "4"
+swap_size = int(swap_size)
+
+run(f"""parted -s {disk} mktable gpt \\
 mkpart artix_boot fat32 0% 1GiB \\
 mkpart artix_swap linux-swap 1GiB {1+swap_size}GiB \\
 mkpart artix_root btrfs {1+swap_size}GiB 100% \\
@@ -51,14 +51,11 @@ align-check optimal 1 \\
 align-check optimal 2 \\
 align-check optimal 3""", shell=True)
 
-    choice = input("Would you like to manually edit partitions? (y/N): ").strip()
-    if choice == "y":
-        run(f"cfdisk {disk}", shell=True)
+choice = input("Would you like to manually edit partitions? (y/N): ").strip()
+if choice == "y":
+    run(f"cfdisk {disk}", shell=True)
 
-    run(f"sfdisk -l {disk}", shell=True)
-    choice = input(f"\nInstall on {disk}? (y/N): ").strip()
-    if choice == "y":
-        break
+run(f"sfdisk -l {disk}", shell=True)
 
 # Setup encrypted partitions
 run("cryptsetup close /dev/mapper/cryptroot", shell=True),
