@@ -53,7 +53,6 @@ mkpart primary linux-swap 1GiB {1+swap_size}GiB \\
 mkpart primary btrfs {1+swap_size}GiB 100% \\
 set 1 esp on \\
 set 2 swap on \\
-set 3 root on \\
 align-check optimal 1 \\
 align-check optimal 2 \\
 align-check optimal 3""", shell=True)
