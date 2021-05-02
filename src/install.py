@@ -48,9 +48,9 @@ while True:
     swap_size = int(swap_size)
 
     run(f"""parted -s {disk} mktable gpt \\
-mkpart primary boot fat32 0% 1GiB \\
-mkpart primary swap linux-swap 1GiB {1+swap_size}GiB \\
-mkpart primary root btrfs {1+swap_size}GiB 100% \\
+mkpart primary fat32 0% 1GiB \\
+mkpart primary linux-swap 1GiB {1+swap_size}GiB \\
+mkpart primary btrfs {1+swap_size}GiB 100% \\
 align-check optimal 1 \\
 align-check optimal 2 \\
 align-check optimal 3""", shell=True)
