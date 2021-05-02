@@ -91,9 +91,3 @@ run(f"mount {disk}1 /mnt/boot/efi", shell=True)
 run("basestrap /mnt base base-devel openrc cryptsetup btrfs-progs python neovim", shell=True)
 run("basestrap /mnt linux linux-firmware linux-headers", shell=True)
 run("fstabgen -U /mnt >> /mnt/etc/fstab", shell=True)
-
-# Finish
-run("cp install.py /mnt/root/", shell=True)
-run("cp iamchroot.py /mnt/root/", shell=True)
-print("\nRun `artix-chroot /mnt /bin/bash`")
-print("\nRun `python /root/iamchroot.py` once you are in the new system.")

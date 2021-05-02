@@ -4,11 +4,8 @@ A stupid installer for Artix Linux
 
 ## Usage
 
-1. Run `sh preinstall.sh` to connect to the internet and install Python (ethernet will already be autoconfigured and Python was already on the last image I tested).
-2. Run `python install.py`.
-3. Run `artix-chroot /mnt /bin/bash`.
-4. Run `python /root/iamchroot.py` in the new system.
-5. When `iamchroot.py` finishes, `exit` the chroot, `umount -R /mnt` if you want, and `poweroff`.
+1. Run `./install.sh`.
+2. When everything finishes, `poweroff`.
 
 ## Assumptions
 
@@ -18,7 +15,7 @@ A stupid installer for Artix Linux
 
 ## What you get
 
-An encrypted Artix Linux system with OpenRC and Btrfs subvols for root, snapshots, and home. Only necessary packages are installed with a few minor exceptions for flavor or the install process (`python`, `zsh`, `neovim`, `neofetch`). Also note that `install.py` and `iamchroot.py` are copied to `/root` during the installation process.
+An encrypted Artix Linux system with OpenRC and Btrfs subvols for root, snapshots, and home. Only necessary packages are installed with a few minor exceptions for flavor or the install process (`python`, `zsh`, `neovim`, `neofetch`).
 
 Post-installation networking is done with `connman`.
 

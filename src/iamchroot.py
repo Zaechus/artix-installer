@@ -149,5 +149,3 @@ run(f"printf '\n{bins_comment}' >> /etc/mkinitcpio.conf", shell=True)
 input("[ENTER] ")
 run("nvim /etc/mkinitcpio.conf", shell=True)
 run("mkinitcpio -P", shell=True)
-
-print("\nTasks completed. You should exit and reboot.")
