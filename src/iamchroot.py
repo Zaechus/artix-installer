@@ -31,6 +31,15 @@ def confirm_name(s):
 
 disk = sys.argv[1]
 
+fs_type = ""
+root_part = f"{disk}2"
+
+try:
+    fs_type = str(check_output(f"sudo blkid {disk}3 -o value -s TYPE", shell=True).strip())[1:]
+    root_part = f"{disk}3"
+except:
+    fs_type = str(check_output(f"sudo blkid {root_part} -o value -s TYPE", shell=True).strip())[1:]
+
 # Boring stuff you should probably do
 region_city = input("Region/City (e.g. `America/Denver`): ").strip()
 if len(region_city) < 3:
@@ -97,15 +106,21 @@ else:
     boot_loader = "grub"
 
 run(f"yes | pacman -S efibootmgr {boot_loader} {ucode}", shell=True)
-disk3uuid = str(check_output(f"sudo blkid {disk}3 -o value -s UUID", shell=True).strip())[1:]
+disk3uuid = str(check_output(f"sudo blkid {root_part} -o value -s UUID", shell=True).strip())[1:]
+
+root_flags = ""
+if fs_type == "ext4":
+    root_flags = f"cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/MyVolGrp/root"
+elif fs_type == "btrfs":
+    root_flags = f"cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@"
 
 if boot_loader == "refind":
-    run(f"printf '\"Boot with standard options\"  \"cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw {ucode_img} initrd=initramfs-linux.img\"\n' > /boot/refind_linux.conf", shell=True)
+    run(f"printf '\"Boot with standard options\"  \"{root_flags} rw {ucode_img} initrd=initramfs-linux.img\"\n' > /boot/refind_linux.conf", shell=True)
 
     run("refind-install", shell=True)
     run(f"refind-install --usedefault {disk}1", shell=True)
 elif boot_loader == "grub":
-    run(f"printf '\n#cryptdevice=UUID={disk3uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@' >> /etc/default/grub", shell=True)
+    run(f"printf '\n#{root_flags}' >> /etc/default/grub", shell=True)
 
     input("Configure GRUB (boot options, encryption, console, etc.). [ENTER] ")
 
@@ -147,20 +162,26 @@ run("rc-update add connmand", shell=True)
 motd = confirm_name("motd")
 run(f"printf '\n{motd}\n\n' > /etc/motd", shell=True)
 
-run("printf '\n/dev/mapper/cryptswap\t\tswap\t\tswap\t\tdefaults\t0 0\n' >> /etc/fstab", shell=True)
+if fs_type == "ext4":
+    run("printf '\n/dev/MyVolGrp/swap\t\tswap\t\tswap\t\tdefaults\t0 0\n' >> /etc/fstab", shell=True)
+elif fs_type == "btrfs":
+    run("printf '\n/dev/mapper/cryptswap\t\tswap\t\tswap\t\tdefaults\t0 0\n' >> /etc/fstab", shell=True)
+    swapuuid = str(check_output(f"sudo blkid {disk}2 -o value -s UUID", shell=True).strip())[1:]
+    run("printf 'run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/" + str(swapuuid) + " cryptswap\n}\n' > /etc/initcpio/hooks/openswap", shell=True)
+    run("printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap", shell=True)
+
 run("nvim /etc/fstab", shell=True)
 
-# Finally fix swap
-swapuuid = str(check_output(f"sudo blkid {disk}2 -o value -s UUID", shell=True).strip())[1:]
-run("printf 'run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/" + str(swapuuid) + " cryptswap\n}\n' > /etc/initcpio/hooks/openswap", shell=True)
-run("printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap", shell=True)
-print("Use these hooks and binaries:")
-hooks_comment = "#HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)"
-bins_comment = "#BINARIES=(/usr/bin/btrfs)"
-print(hooks_comment)
-print(bins_comment)
+# Configure mkinitcpio
+if fs_type == "ext4":
+    hooks_comment = "#HOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)"
+    bins_comment = "#BINARIES=()"
+elif fs_type == "btrfs":
+    hooks_comment = "#HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)"
+    bins_comment = "#BINARIES=(/usr/bin/btrfs)"
+
 run(f"printf '\n{hooks_comment}' >> /etc/mkinitcpio.conf", shell=True)
 run(f"printf '\n{bins_comment}' >> /etc/mkinitcpio.conf", shell=True)
-input("[ENTER] ")
+input("Configure /etc/mkinitcpio.conf with the correct HOOKS AND BINARIES. [ENTER] ")
 run("nvim /etc/mkinitcpio.conf", shell=True)
 run("mkinitcpio -P", shell=True)
