@@ -24,4 +24,4 @@ sudo cp src/iamchroot.py /mnt/root/
 # chroot
 sudo artix-chroot /mnt /bin/bash -c "python /root/iamchroot.py $MY_DISK && exit"
 
-printf '\nYou may now poweroff.\n'
+printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
