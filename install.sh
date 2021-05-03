@@ -24,8 +24,4 @@ sudo cp src/iamchroot.py /mnt/root/
 # chroot
 sudo artix-chroot /mnt /bin/bash -c "python /root/iamchroot.py $MY_DISK && exit"
 
-# clean up
-sudo umount -R /mnt
-sudo cryptsetup close /dev/mapper/cryptroot
-sudo cryptsetup close /dev/mapper/cryptswap
 printf '\nYou may now poweroff.\n'
