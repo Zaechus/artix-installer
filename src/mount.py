@@ -14,7 +14,7 @@ cryptpass = input("Encryption password: ").strip()
 if fs_type == "ext4":
     run(f"yes '{cryptpass}' | sudo cryptsetup open {disk}2 cryptroot", shell=True)
 
-    run("sudo vchange -ay MyVolGrp", shell=True)
+    run("sudo vgchange -ay MyVolGrp", shell=True)
 
     run("sudo mount /dev/MyVolGrp/root /mnt", shell=True)
 elif fs_type == "btrfs":
