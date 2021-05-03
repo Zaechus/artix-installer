@@ -14,9 +14,9 @@ cryptpass = input("Encryption password: ").strip()
 if fs_type == "ext4":
     run(f"yes '{cryptpass}' | sudo cryptsetup open {disk}2 cryptroot", shell=True)
 
-    run("vchange -ay MyVolGrp", shell=True)
+    run("sudo vchange -ay MyVolGrp", shell=True)
 
-    run("mount /dev/MyVolGrp/root /mnt", shell=True)
+    run("sudo mount /dev/MyVolGrp/root /mnt", shell=True)
 elif fs_type == "btrfs":
     run(f"yes '{cryptpass}' | sudo cryptsetup open {disk}3 cryptroot", shell=True)
     run(f"yes '{cryptpass}' | sudo cryptsetup open {disk}2 cryptswap", shell=True)
