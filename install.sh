@@ -8,8 +8,15 @@ sudo connmanctl
 yes | sudo pacman -Sy --needed python
 
 # install
-sudo sfdisk -l
-printf '\nDisk to install to (e.g. /dev/sda): ' && read MY_DISK && echo $MY_DISK
+while :
+do
+    sudo sfdisk -l
+    printf '\nDisk to install to (e.g. /dev/sda): ' && read MY_DISK && echo $MY_DISK
+    if test -f "$MY_DISK"; then
+        break
+    fi
+done
+
 sudo python src/install.py $MY_DISK
 sudo cp src/iamchroot.py /mnt/root/
 
