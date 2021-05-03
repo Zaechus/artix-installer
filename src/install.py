@@ -73,15 +73,15 @@ set 1 esp on \\
 align-check optimal 1""", shell=True)
 
 if fs_type == "ext4":
-    run(f"""parted -s {disk} mktable gpt \\
+    run(f"""parted -s {disk} \\
 mkpart artix_root ext4 1GiB 100% \\
 align-check optimal 2""", shell=True)
 elif fs_type == "zfs":
-    run(f"""parted -s {disk} mktable gpt \\
+    run(f"""parted -s {disk} \\
 mkpart artix_root 1GiB 100% \\
 align-check optimal 2""", shell=True)
 elif fs_type == "btrfs":
-    run(f"""parted -s {disk} mktable gpt \\
+    run(f"""parted -s {disk} \\
 mkpart artix_swap linux-swap 1GiB {1+swap_size}GiB \\
 mkpart artix_root btrfs {1+swap_size}GiB 100% \\
 set 2 swap on \\
