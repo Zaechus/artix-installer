@@ -47,7 +47,7 @@ Post-installation networking is done with `connman`.
 -|-|-|-|-|-
 1 | 1G | EFI System |  | fat32 | /boot/efi
 2 | ~4G | Linux swap | * | linux-swap | [SWAP]
-3 | FREE | Linux filesystem | * | ext4 | /dev/mapper/cryptroot
+3 | FREE | Linux filesystem | * | btrfs | /dev/mapper/cryptroot
 
 ### Btrfs subvolumes
 \# | Name | Mount
