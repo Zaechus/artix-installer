@@ -35,13 +35,13 @@ fs_type = ""
 root_part = f"{disk}2"
 
 try:
-    fs_type = str(check_output(f"sudo blkid {disk}3 -o value -s TYPE", shell=True).strip())[1:]
+    fs_type = check_output(f"sudo blkid {disk}3 -o value -s TYPE", shell=True).strip().decode("utf-8")
     root_part = f"{disk}3"
 except:
     try:
-        fs_type = str(check_output(f"sudo blkid /dev/MyVolGrp/root -o value -s TYPE", shell=True).strip())[1:]
+        fs_type = check_output(f"sudo blkid /dev/MyVolGrp/root -o value -s TYPE", shell=True).strip().decode("utf-8")
     except:
-        fs_type = str(check_output(f"sudo blkid {root_part} -o value -s TYPE", shell=True).strip())[1:]
+        fs_type = check_output(f"sudo blkid {root_part} -o value -s TYPE", shell=True).strip().decode("utf-8")
 
 # Boring stuff you should probably do
 region_city = input("Region/City (e.g. `America/Denver`): ").strip()
@@ -109,7 +109,7 @@ else:
     boot_loader = "grub"
 
 run(f"yes | pacman -S efibootmgr {boot_loader} {ucode}", shell=True)
-disk3uuid = str(check_output(f"sudo blkid {root_part} -o value -s UUID", shell=True).strip())[1:]
+disk3uuid = check_output(f"sudo blkid {root_part} -o value -s UUID", shell=True).strip().decode("utf-8")
 
 root_flags = ""
 if fs_type == "ext4":
@@ -169,7 +169,7 @@ if fs_type == "ext4":
     run("printf '\n/dev/MyVolGrp/swap\t\tswap\t\tswap\t\tdefaults\t0 0\n' >> /etc/fstab", shell=True)
 elif fs_type == "btrfs":
     run("printf '\n/dev/mapper/cryptswap\t\tswap\t\tswap\t\tdefaults\t0 0\n' >> /etc/fstab", shell=True)
-    swapuuid = str(check_output(f"sudo blkid {disk}2 -o value -s UUID", shell=True).strip())[1:]
+    swapuuid = check_output(f"sudo blkid {disk}2 -o value -s UUID", shell=True).strip().decode("utf-8")
     run("printf 'run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/" + str(swapuuid) + " cryptswap\n}\n' > /etc/initcpio/hooks/openswap", shell=True)
     run("printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap", shell=True)
 

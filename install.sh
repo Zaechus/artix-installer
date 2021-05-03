@@ -11,8 +11,9 @@ yes | sudo pacman -Sy --needed python
 while :
 do
     sudo sfdisk -l
-    printf '\nDisk to install to (e.g. /dev/sda): ' && read MY_DISK && echo $MY_DISK
+    printf '\nDisk to install to (e.g. /dev/sda): ' && read MY_DISK
     if test -b "$MY_DISK"; then
+        echo $MY_DISK
         break
     fi
 done
