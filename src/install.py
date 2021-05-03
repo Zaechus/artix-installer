@@ -60,6 +60,7 @@ else:
     root_part = f"{disk}3"
     fs_pkgs = "cryptsetup btrfs-progs"
 
+print("\nBegin ignoring error messages:")
 run("umount -Rq /mnt/boot/efi", shell=True)
 run("umount -Rq /mnt", shell=True)
 run("lvchange -an /dev/MyVolGrp/swap", shell=True)
@@ -71,6 +72,7 @@ run("cryptsetup -q close /dev/mapper/cryptroot", shell=True),
 run("cryptsetup -q close /dev/mapper/cryptswap", shell=True),
 run("rm -rf /mnt", shell=True)
 run("mkdir /mnt", shell=True)
+print("End ignoring error messages.")
 
 run(f"""parted -s {disk} mktable gpt \\
 mkpart artix_boot fat32 0% 1GiB \\
