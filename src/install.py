@@ -60,12 +60,17 @@ else:
     root_part = f"{disk}3"
     fs_pkgs = "cryptsetup btrfs-progs"
 
-run("umount -Rq /mnt/boot/efi > /dev/null", shell=True)
-run("umount -Rq /mnt > /dev/null", shell=True)
-run("cryptsetup -q close /dev/mapper/cryptroot > /dev/null", shell=True),
-run("cryptsetup -q close /dev/mapper/cryptswap > /dev/null", shell=True),
-run("rm -rf /mnt > /dev/null", shell=True)
-run("mkdir /mnt > /dev/null", shell=True)
+run("umount -Rq /mnt/boot/efi", shell=True)
+run("umount -Rq /mnt", shell=True)
+run("lvchange -an /dev/MyVolGrp/swap", shell=True)
+run("lvchange -an /dev/MyVolGrp/root", shell=True)
+run("lvremove /dev/MyVolGrp/swap", shell=True)
+run("lvremove /dev/MyVolGrp/root", shell=True)
+run("vgremove MyVolGrp", shell=True)
+run("cryptsetup -q close /dev/mapper/cryptroot", shell=True),
+run("cryptsetup -q close /dev/mapper/cryptswap", shell=True),
+run("rm -rf /mnt", shell=True)
+run("mkdir /mnt", shell=True)
 
 run(f"""parted -s {disk} mktable gpt \\
 mkpart artix_boot fat32 0% 1GiB \\

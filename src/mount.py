@@ -6,9 +6,17 @@ from subprocess import run
 
 disk = sys.argv[1]
 
-run("sudo umount -R /mnt", shell=True)
-run("sudo cryptsetup close /dev/mapper/cryptswap", shell=True)
-run("sudo cryptsetup close /dev/mapper/cryptroot", shell=True)
+run("sudo umount -Rq /mnt/boot/efi", shell=True)
+run("sudo umount -Rq /mnt", shell=True)
+run("sudo lvchange -an /dev/MyVolGrp/swap", shell=True)
+run("sudo lvchange -an /dev/MyVolGrp/root", shell=True)
+run("sudo lvremove /dev/MyVolGrp/swap", shell=True)
+run("sudo lvremove /dev/MyVolGrp/root", shell=True)
+run("sudo vgremove MyVolGrp", shell=True)
+run("sudo cryptsetup -q close /dev/mapper/cryptroot", shell=True),
+run("sudo cryptsetup -q close /dev/mapper/cryptswap", shell=True),
+run("sudo rm -rf /mnt", shell=True)
+run("sudo mkdir /mnt", shell=True)
 
 cryptpass = input("Encryption password: ").strip()
 
