@@ -16,12 +16,13 @@ cd artix-installer
 
 ## Assumptions
 
-* These scripts assume you are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be loaded with `git`, another USB drive, or perhapts `wget`.
+* You are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be loaded with `git`, another USB drive, or perhapts `wget`.
 * You want what it wants within certain boundaries.
 * You can follow basic instructions.
 * You know how to use vim as an editor.
 * You know what to do when the script drops you into a file to edit or verify.
 * You're aware that you'll manually have to enter `--type luks1` as a LUKS option until GRUB gets upgraded from 2.0.4
+* You're aware that the rEFInd option will probably work but lacks full testing because of issues with QEMU. Submit an issue if it doesn't work.
 
 ## What you get
 
