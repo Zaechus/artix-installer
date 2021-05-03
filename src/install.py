@@ -111,7 +111,7 @@ if fs_type == "ext4":
     # Setup LVM
     run("pvcreate /dev/mapper/cryptroot", shell=True)
     run("vgcreate MyVolGrp /dev/mapper/cryptroot", shell=True)
-    run(f"lvcreate -L {swap_size} MyVolGrp -n swap", shell=True)
+    run(f"lvcreate -L {swap_size}G MyVolGrp -n swap", shell=True)
     run("lvcreate -l 100%FREE MyVolGrp -n root", shell=True)
 
     run("mkswap /dev/MyVolGrp/swap", shell=True)
