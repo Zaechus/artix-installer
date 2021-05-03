@@ -26,16 +26,28 @@ cd artix-installer
 
 ## What you get
 
-An encrypted Artix Linux system with OpenRC and Btrfs subvols for root, snapshots, and home. Only necessary packages are installed with a few minor exceptions for flavor or the install process (`python`, `zsh`, `neovim`, `neofetch`).
+A minimal, encrypted Artix Linux system with OpenRC. Only necessary packages are installed with a few minor exceptions for flavor or the install process (`python`, `zsh`, `neovim`, `neofetch`).
 
 Post-installation networking is done with `connman`.
 
-### Partition Scheme
-\# | Size | Type | LUKS | FS
--|-|-|-|-
-1 | 1G | EFI System |  | fat32
-2 | ~4G | Linux swap | * | swap
-3 | FREE | Linux filesystem | * | btrfs
+### Ext4 Partition Scheme
+\# | Size | Type | LUKS | FS | Mount
+-|-|-|-|-|-
+1 | 1G | EFI System |  | fat32 | /boot/efi
+2 | FREE | Linux filesystem | * | ext4 | /dev/mapper/cryptroot
+
+### Ext4 LVM Volumes
+\# | Name | Mount
+-|-|-
+1 | swap | [SWAP]
+2 | root | /
+
+### Btrfs Partition Scheme
+\# | Size | Type | LUKS | FS | Mount
+-|-|-|-|-|-
+1 | 1G | EFI System |  | fat32 | /boot/efi
+2 | ~4G | Linux swap | * | linux-swap | [SWAP]
+3 | FREE | Linux filesystem | * | ext4 | /dev/mapper/cryptroot
 
 ### Btrfs subvolumes
 \# | Name | Mount
@@ -48,7 +60,7 @@ Post-installation networking is done with `connman`.
 Feature | Name
 -|-
 Boot loader | rEFInd or GRUB
-Filesystem | Btrfs
+Filesystem | ext4 or btrfs
 Init System | OpenRC
 Networking | connman
 Shell | Zsh
