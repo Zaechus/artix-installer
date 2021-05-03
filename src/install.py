@@ -44,17 +44,13 @@ swap_size = int(swap_size)
 fs_type = input(
     "\nDesired filesystem:"
     "\n(1)  ext4"
-    "\n(2)  ZFS"
-    "\n(3+) Btrfs\n: "
+    "\n(2+) Btrfs\n: "
 ).strip()
 root_part = f"{disk}2"
 fs_pkgs = ""
 if fs_type == "1":
     fs_type = "ext4"
     fs_pkgs = "cryptsetup lvm2 lvm2-openrc"
-elif fs_type == "2":
-    fs_type = "zfs"
-    fs_pkgs = "zfs-dkms"
 else:
     fs_type = "btrfs"
     root_part = f"{disk}3"
@@ -72,10 +68,6 @@ align-check optimal 1""", shell=True)
 if fs_type == "ext4":
     run(f"""parted -s {disk} \\
 mkpart artix_root ext4 1GiB 100% \\
-align-check optimal 2""", shell=True)
-elif fs_type == "zfs":
-    run(f"""parted -s {disk} \\
-mkpart artix_root 1GiB 100% \\
 align-check optimal 2""", shell=True)
 elif fs_type == "btrfs":
     run(f"""parted -s {disk} \\
