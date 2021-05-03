@@ -38,7 +38,10 @@ try:
     fs_type = str(check_output(f"sudo blkid {disk}3 -o value -s TYPE", shell=True).strip())[1:]
     root_part = f"{disk}3"
 except:
-    fs_type = str(check_output(f"sudo blkid {root_part} -o value -s TYPE", shell=True).strip())[1:]
+    try:
+        fs_type = str(check_output(f"sudo blkid /dev/MyVolGrp/root -o value -s TYPE", shell=True).strip())[1:]
+    except:
+        fs_type = str(check_output(f"sudo blkid {root_part} -o value -s TYPE", shell=True).strip())[1:]
 
 # Boring stuff you should probably do
 region_city = input("Region/City (e.g. `America/Denver`): ").strip()
