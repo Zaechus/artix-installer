@@ -35,7 +35,8 @@ fs_type = ""
 root_part = f"{disk}2"
 
 try:
-    fs_type = check_output(f"sudo blkid {disk}3 -o value -s TYPE", shell=True).strip().decode("utf-8")
+    check_output(f"sudo blkid {disk}3 -o value -s TYPE", shell=True).strip().decode("utf-8")
+    fs_type = check_output(f"sudo blkid /dev/mapper/cryptroot -o value -s TYPE", shell=True).strip().decode("utf-8")
     root_part = f"{disk}3"
 except:
     try:
