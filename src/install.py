@@ -29,6 +29,13 @@ run(f"loadkeys {keymap}", shell=True)
 
 # Partition disk
 disk = sys.argv[1]
+part1 = f"{disk}1"
+part2 = f"{disk}2"
+part3 = f"{disk}3"
+if "nvme" in disk:
+    part1 = f"{disk}p1"
+    part2 = f"{disk}p2"
+    part3 = f"{disk}p3"
 run("yes | pacman -Sy --needed parted", shell=True)
 
 erase = input(f"\nWould you like to erase the contents of {disk}? (y/N): ").strip()
@@ -46,14 +53,14 @@ fs_type = input(
     "\n(1)  ext4"
     "\n(2+) Btrfs\n: "
 ).strip()
-root_part = f"{disk}2"
+root_part = part2
 fs_pkgs = ""
 if fs_type == "1":
     fs_type = "ext4"
     fs_pkgs = "cryptsetup lvm2 lvm2-openrc"
 else:
     fs_type = "btrfs"
-    root_part = f"{disk}3"
+    root_part = part3
     fs_pkgs = "cryptsetup btrfs-progs"
 
 print("\nBegin ignoring error messages:")
@@ -68,6 +75,7 @@ align-check optimal 1""", shell=True)
 if fs_type == "ext4":
     run(f"""parted -s {disk} \\
 mkpart artix_root ext4 1GiB 100% \\
+set 2 lvm on \\
 align-check optimal 2""", shell=True)
 elif fs_type == "btrfs":
     run(f"""parted -s {disk} \\
@@ -93,11 +101,11 @@ if fs_type == "ext4" or fs_type == "btrfs":
     run(f"yes '{cryptpass}' | cryptsetup open {root_part} cryptroot", shell=True)
 
 if fs_type == "btrfs":
-    run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {disk}2", shell=True)
-    run(f"yes '{cryptpass}' | cryptsetup open {disk}2 cryptswap", shell=True)
+    run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {part2}", shell=True)
+    run(f"yes '{cryptpass}' | cryptsetup open {part2} cryptswap", shell=True)
 
 # Format partitions and mount
-run(f"mkfs.fat -F 32 {disk}1", shell=True)
+run(f"mkfs.fat -F 32 {part1}", shell=True)
 
 if fs_type == "ext4":
     # Setup LVM
@@ -129,7 +137,7 @@ elif fs_type == "btrfs":
     run("mount -o compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home", shell=True)
 
 run("mkdir -p /mnt/boot/efi", shell=True)
-run(f"mount {disk}1 /mnt/boot/efi", shell=True)
+run(f"mount {part1} /mnt/boot/efi", shell=True)
 
 # Install base system and kernel
 run(f"basestrap /mnt base base-devel openrc {fs_pkgs} python neovim parted", shell=True)

@@ -58,10 +58,13 @@ Post-installation networking is done with `connman`.
 3 | @home | /home
 
 ### Software
+
+Options in bold are the preferred stable configuration that is always tested. Options in italics are more difficult to test or are tested less often but will probably work with no issues.
+
 Feature | Name
 -|-
-Boot loader | rEFInd or GRUB
-Filesystem | ext4 or btrfs
+Boot loader | _rEFInd_ or **GRUB**
+Filesystem | ext4 or **btrfs**
 Init System | OpenRC
 Networking | connman
 Shell | Zsh
