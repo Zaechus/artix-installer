@@ -61,17 +61,7 @@ else:
     fs_pkgs = "cryptsetup btrfs-progs"
 
 print("\nBegin ignoring error messages:")
-run("umount -Rq /mnt/boot/efi", shell=True)
-run("umount -Rq /mnt", shell=True)
-run("lvchange -an /dev/MyVolGrp/swap", shell=True)
-run("lvchange -an /dev/MyVolGrp/root", shell=True)
-run("lvremove /dev/MyVolGrp/swap", shell=True)
-run("lvremove /dev/MyVolGrp/root", shell=True)
-run("vgremove MyVolGrp", shell=True)
-run("cryptsetup -q close /dev/mapper/cryptroot", shell=True),
-run("cryptsetup -q close /dev/mapper/cryptswap", shell=True),
-run("rm -rf /mnt", shell=True)
-run("mkdir /mnt", shell=True)
+run("./src/umount.sh", shell=True)
 print("End ignoring error messages.")
 
 run(f"""parted -s {disk} mktable gpt \\
