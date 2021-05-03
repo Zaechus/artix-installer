@@ -12,7 +12,7 @@ while :
 do
     sudo sfdisk -l
     printf '\nDisk to install to (e.g. /dev/sda): ' && read MY_DISK && echo $MY_DISK
-    if test -f "$MY_DISK"; then
+    if test -b "$MY_DISK"; then
         break
     fi
 done
