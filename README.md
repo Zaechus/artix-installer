@@ -16,10 +16,10 @@ cd artix-installer
 
 ## Assumptions
 
-* You are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be loaded with `git`, another USB drive, or perhapts `wget`.
+* You are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be loaded with `git`, another USB drive, or perhaps `wget`.
 * You want what it wants within certain boundaries.
 * You can follow basic instructions.
-* You don't mess up. Mistakes, of course, will cause the script to kill itself or render your new system unbootable.
+* You don't mess up. The scripts will only hold your hand so far. Mistakes, of course, will either cause the script to kill itself or render your new system unbootable.
 * You know how to use vim as an editor.
 * You know what to do when the script drops you into a file to edit or verify. Comments are often dispensed at the bottom of files.
 * You're aware that you'll manually have to enter `--type luks1` as a LUKS option until GRUB gets upgraded from 2.0.4
