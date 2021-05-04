@@ -37,7 +37,7 @@ Post-installation networking is done with `connman`.
 1 | 1G | EFI System |  | fat32 | /boot/efi
 2 | FREE | Linux filesystem | * | ext4 | /dev/mapper/cryptroot
 
-### Ext4 LVM Volumes
+#### LVM Volumes
 \# | Name | Mount
 -|-|-
 1 | swap | [SWAP]
@@ -50,7 +50,7 @@ Post-installation networking is done with `connman`.
 2 | ~4G | Linux swap | * | linux-swap | [SWAP]
 3 | FREE | Linux filesystem | * | btrfs | /dev/mapper/cryptroot
 
-### Btrfs subvolumes
+#### Btrfs Subvolumes
 \# | Name | Mount
 -|-|-
 1 | @ | /
@@ -63,8 +63,8 @@ Options in bold are the preferred stable configuration that is always tested. Op
 
 Feature | Name
 -|-
-Boot loader | _rEFInd_ or **GRUB**
-Filesystem | ext4 or **btrfs**
+Boot loader | _rEFInd_, **GRUB**
+Filesystem | ext4, **btrfs**
 Init System | OpenRC
 Networking | connman
 Shell | Zsh

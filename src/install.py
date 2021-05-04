@@ -63,9 +63,7 @@ else:
     root_part = part3
     fs_pkgs = "cryptsetup btrfs-progs"
 
-print("\nBegin ignoring error messages:")
-run("./src/umount.sh", shell=True)
-print("End ignoring error messages.")
+run("./src/umount.sh > /dev/null 2>&1", shell=True)
 
 run(f"""parted -s {disk} mktable gpt \\
 mkpart artix_boot fat32 0% 1GiB \\
@@ -92,9 +90,11 @@ if choice == "y":
 run(f"sfdisk -l {disk}", shell=True)
 
 # Setup encrypted partitions
-cryptpass = make_password("\nSetting encryption password...\n")
+cryptpass = ""
 
 if fs_type == "ext4" or fs_type == "btrfs":
+    cryptpass = make_password("\nSetting encryption password...\n")
+
     luks_options = input("\nAdditional cryptsetup options (e.g. `--type luks1`): ").strip()
 
     run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {luks_options} {root_part}", shell=True)
