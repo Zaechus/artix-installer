@@ -14,6 +14,12 @@ cd artix-installer
 3. Run `./install.sh`.
 4. When everything finishes, `poweroff`.
 
+### Preinstallation
+
+* ISO downloads can be found at [artixlinux.org](https://artixlinux.org)
+* ISO files can be burned to drives with `dd` or something like Etcher.
+* `sudo dd bs=4M if=/path/to/artix.iso of=/dev/sd[drive letter] status=progress oflag=sync`
+
 ## Assumptions
 
 * You are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be loaded with `git`, another USB drive, or perhaps `wget`.
