@@ -108,8 +108,8 @@ else:
 
 boot_loader = input(
     "\nDesired boot loader:"
-    "\n(1) rEFInd"
-    "\n(2) GRUB\n: "
+    "\n(1)  rEFInd"
+    "\n(2+) GRUB\n: "
 ).strip()
 if boot_loader == "1":
     boot_loader = "refind"
