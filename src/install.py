@@ -5,6 +5,7 @@ import sys
 from subprocess import run, check_output
 
 def make_password(s):
+    print("Passwords cannot contain ' or \"")
     print(s, end="")
 
     while True:
