@@ -170,7 +170,7 @@ run("EDITOR=nvim visudo", shell=True)
 
 # Other stuff you should do or you'll be sad
 run("yes | pacman -S dhcpcd wpa_supplicant connman-openrc", shell=True)
-run("rc-update add connmand", shell=True)
+run("rc-update add connmand default", shell=True)
 motd = confirm_name("motd")
 run(f"printf '\n{motd}\n\n' > /etc/motd", shell=True)
 
