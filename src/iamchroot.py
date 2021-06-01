@@ -62,12 +62,17 @@ run("hwclock --systohc", shell=True)
 
 # Configure pacman
 input("Configure pacman (color, multilib, etc.). [ENTER] ")
+run("pacman -S artix-archlinux-support", shell=True)
+run("printf '\n#[testing]\n#Include = /etc/pacman.d/mirrorlist-arch\n\n[extra]\nInclude = /etc/pacman.d/mirrorlist-arch\n\n#[community-testing]\n#Include = /etc/pacman.d/mirrorlist-arch\n\n[community]\nInclude = /etc/pacman.d/mirrorlist-arch\n\n#[multilib-testing]\n#Include = /etc/pacman.d/mirrorlist-arch\n\n[multilib]\nInclude = /etc/pacman.d/mirrorlist-arch' >> /etc/pacman.conf", shell=True)
+run("pacman-key --populate archlinux", shell=True)
+run("yes | pacman -Syy neovim", shell=True)
 run("nvim /etc/pacman.conf", shell=True)
 run("printf '\nkeyserver hkp://keyserver.ubuntu.com\n' >> /etc/pacman.d/gnupg/gpg.conf", shell=True)
 run("nvim /etc/pacman.d/gnupg/gpg.conf", shell=True)
 run("pacman-key --populate artix", shell=True)
+run("pacman-key --populate archlinux", shell=True)
 
-run("yes | pacman -Syu neofetch", shell=True)
+run("yes | pacman -Syyuu neofetch", shell=True)
 
 # Localization
 input("Uncomment locales (en_US.UTF-8). [ENTER] ")
