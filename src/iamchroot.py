@@ -11,7 +11,7 @@ def handler(recv, frame):
 signal(SIGINT, handler)
 
 def make_password(s):
-    print("Passwords cannot contain ' or \"")
+    print("\nPasswords should not contain ' or \"")
     print(s, end="")
 
     while True:
