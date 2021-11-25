@@ -141,6 +141,6 @@ run("mkdir -p /mnt/boot/efi", shell=True)
 run(f"mount {part1} /mnt/boot/efi", shell=True)
 
 # Install base system and kernel
-run(f"basestrap /mnt base base-devel openrc {fs_pkgs} python neovim parted", shell=True)
+run(f"basestrap /mnt base base-devel openrc elogind-openrc {fs_pkgs} python neovim parted", shell=True)
 run("basestrap /mnt linux linux-firmware linux-headers", shell=True)
 run("fstabgen -U /mnt >> /mnt/etc/fstab", shell=True)
