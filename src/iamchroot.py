@@ -92,6 +92,7 @@ run(f"printf 'KEYMAP={keymap}\n' > /etc/vconsole.conf", shell=True)
 # Host stuff
 hostname = confirm_name("hostname")
 run(f"printf '{hostname}\n' > /etc/hostname", shell=True)
+run(f"""printf 'hostname="{hostname}"\n' > /etc/conf.d/hostname""", shell=True)
 run(f"printf '\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t{hostname}.localdomain\t{hostname}\n' > /etc/hosts", shell=True)
 
 # Install boot loader
