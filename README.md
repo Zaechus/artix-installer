@@ -18,7 +18,7 @@ cd artix-installer
 
 * ISO downloads can be found at [artixlinux.org](https://artixlinux.org)
 * ISO files can be burned to drives with `dd` or something like Etcher.
-* `sudo dd bs=4M if=/path/to/artix.iso of=/dev/sd[drive letter] status=progress oflag=sync`
+* `sudo dd bs=4M if=/path/to/artix.iso of=/dev/sd[drive letter] conf=fsync oflag=direct status=progress`
 
 ## Assumptions
 

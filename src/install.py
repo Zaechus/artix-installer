@@ -41,7 +41,7 @@ run("yes | pacman -Sy --needed parted", shell=True)
 
 erase = input(f"\nWould you like to erase the contents of {disk}? (y/N): ").strip()
 if erase == "y":
-    run(f"dd bs=4096 if=/dev/zero iflag=nocache of={disk} oflag=direct status=progress", shell=True)
+    run(f"dd bs=4096 if=/dev/zero of={disk} status=progress", shell=True)
 
 swap_size = input("\nSize of swap partition (4GiB): ").strip()
 swap_size = "".join([x for x in swap_size if x.isdigit()])
