@@ -41,7 +41,7 @@ Post-installation networking is done with `connman`.
 ### Ext4 Partition Scheme
 \# | Size | Type | LUKS | FS | Mount
 -|-|-|-|-|-
-1 | 1G | EFI System |  | fat32 | /boot/efi
+1 | 550M | EFI System |  | fat32 | /boot/efi
 2 | FREE | Linux filesystem | * | ext4 | /dev/mapper/cryptroot
 
 #### LVM Volumes
@@ -53,7 +53,7 @@ Post-installation networking is done with `connman`.
 ### Btrfs Partition Scheme
 \# | Size | Type | LUKS | FS | Mount
 -|-|-|-|-|-
-1 | 1G | EFI System |  | fat32 | /boot/efi
+1 | 550M | EFI System |  | fat32 | /boot/efi
 2 | ~4G | Linux swap | * | swap | [SWAP]
 3 | FREE | Linux filesystem | * | btrfs | /dev/mapper/cryptroot
 
