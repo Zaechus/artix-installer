@@ -12,17 +12,18 @@ git clone https://github.com/Zaechus/artix-installer && \
 cd artix-installer
 ```
 3. Run `./install.sh`.
-4. When everything finishes, `poweroff`.
+4. When everything finishes, `poweroff`, remove the installation media, and boot into Artix.
 
 ### Preinstallation
 
-* ISO downloads can be found at [artixlinux.org](https://artixlinux.org)
+* ISO downloads can be found at [artixlinux.org](https://artixlinux.org/download.php)
 * ISO files can be burned to drives with `dd` or something like Etcher.
 * `sudo dd bs=4M if=/path/to/artix.iso of=/dev/sd[drive letter] conv=fsync oflag=direct status=progress`
+* A better method these days is to use [Ventoy](https://www.ventoy.net/en/index.html)
 
 ## Assumptions
 
-* You are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be loaded with `git`, another USB drive, or perhaps `wget`.
+* You are already booted into the Artix live disk or you at least have `artools` on your system and have loaded all of the scripts in some way. These scripts can be downloaded with something like `git` or `curl`.
 * You want what it wants within certain boundaries.
 * You can follow basic instructions.
 * You don't mess up. The scripts will only hold your hand so far. Mistakes, of course, will either cause the script to kill itself or render your new system unbootable.
@@ -53,7 +54,7 @@ Post-installation networking is done with `connman`.
 \# | Size | Type | LUKS | FS | Mount
 -|-|-|-|-|-
 1 | 1G | EFI System |  | fat32 | /boot/efi
-2 | ~4G | Linux swap | * | linux-swap | [SWAP]
+2 | ~4G | Linux swap | * | swap | [SWAP]
 3 | FREE | Linux filesystem | * | btrfs | /dev/mapper/cryptroot
 
 #### Btrfs Subvolumes
