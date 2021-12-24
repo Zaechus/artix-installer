@@ -67,18 +67,18 @@ else:
 run("./src/umount.sh > /dev/null 2>&1", shell=True)
 
 run(f"""parted -s {disk} mktable gpt \\
-mkpart artix_boot fat32 0% 1GiB \\
+mkpart artix_boot fat32 0% 550MiB \\
 set 1 esp on \\
 align-check optimal 1""", shell=True)
 
 if fs_type == "ext4":
     run(f"""parted -s {disk} \\
-mkpart artix_root ext4 1GiB 100% \\
+mkpart artix_root ext4 550MiB 100% \\
 set 2 lvm on \\
 align-check optimal 2""", shell=True)
 elif fs_type == "btrfs":
     run(f"""parted -s {disk} \\
-mkpart artix_swap linux-swap 1GiB {1+swap_size}GiB \\
+mkpart artix_swap linux-swap 550MiB {1+swap_size}GiB \\
 mkpart artix_root btrfs {1+swap_size}GiB 100% \\
 set 2 swap on \\
 align-check optimal 2 \\
@@ -141,6 +141,6 @@ run("mkdir -p /mnt/boot/efi", shell=True)
 run(f"mount {part1} /mnt/boot/efi", shell=True)
 
 # Install base system and kernel
-run(f"basestrap /mnt base base-devel openrc elogind-openrc {fs_pkgs} python neovim parted", shell=True)
+run(f"basestrap /mnt base base-devel openrc elogind-openrc {fs_pkgs} python neovim", shell=True)
 run("basestrap /mnt linux linux-firmware linux-headers", shell=True)
 run("fstabgen -U /mnt >> /mnt/etc/fstab", shell=True)
