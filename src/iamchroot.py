@@ -44,11 +44,11 @@ root_part = part2
 
 try:
     check_output(f"sudo blkid {part3} -o value -s TYPE", shell=True).strip().decode("utf-8")
-    fs_type = check_output(f"sudo blkid /dev/mapper/cryptroot -o value -s TYPE", shell=True).strip().decode("utf-8")
+    fs_type = check_output("sudo blkid /dev/mapper/cryptroot -o value -s TYPE", shell=True).strip().decode("utf-8")
     root_part = part3
 except:
     try:
-        fs_type = check_output(f"sudo blkid /dev/MyVolGrp/root -o value -s TYPE", shell=True).strip().decode("utf-8")
+        fs_type = check_output("sudo blkid /dev/MyVolGrp/root -o value -s TYPE", shell=True).strip().decode("utf-8")
     except:
         fs_type = check_output(f"sudo blkid {root_part} -o value -s TYPE", shell=True).strip().decode("utf-8")
 
@@ -63,8 +63,8 @@ run("hwclock --systohc", shell=True)
 # Localization
 run("sed -i '/en_US\.UTF-8/s/^#//g' /etc/locale.gen", shell=True)
 run("locale-gen", shell=True)
-run(f"printf 'LANG=en_US.UTF-8\n' > /etc/locale.conf", shell=True)
-run(f"printf 'KEYMAP=us\n' > /etc/vconsole.conf", shell=True)
+run("printf 'LANG=en_US.UTF-8\n' > /etc/locale.conf", shell=True)
+run("printf 'KEYMAP=us\n' > /etc/vconsole.conf", shell=True)
 
 # Host stuff
 hostname = confirm_name("hostname")
@@ -95,19 +95,19 @@ root_part_uuid = check_output(f"sudo blkid {root_part} -o value -s UUID", shell=
 
 root_flags = f"cryptdevice=UUID={root_part_uuid}:cryptroot"
 if fs_type == "ext4":
-    root_flags = " root=/dev/MyVolGrp/root"
+    root_flags += " root=\/dev\/MyVolGrp\/root"
 elif fs_type == "btrfs":
-    root_flags = " root=/dev/mapper/cryptroot rootflags=subvol=root"
+    root_flags += " root=\/dev\/mapper\/cryptroot"
 
 run(f"sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT.*$/GRUB_CMDLINE_LINUX_DEFAULT=\"{root_flags}\"/g' /etc/default/grub", shell=True)
-run(f"printf '\n\nGRUB_ENABLE_CRYPTODISK=y\n' >> /etc/default/grub", shell=True)
+run("printf '\n\nGRUB_ENABLE_CRYPTODISK=y\n' >> /etc/default/grub", shell=True)
 
 run("grub-install --target=x86_64-efi --efi-directory=/boot --recheck", shell=True)
 run("grub-install --target=x86_64-efi --efi-directory=/boot --removable --recheck", shell=True)
 run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
 
 # Local.start
-run(f"printf 'rfkill unblock wifi\n' > /etc/local.d/local.start", shell=True)
+run("printf 'rfkill unblock wifi\n' > /etc/local.d/local.start", shell=True)
 run("chmod +x /etc/local.d/local.start", shell=True)
 
 # Add default user
@@ -141,9 +141,9 @@ elif fs_type == "btrfs":
 
 # Configure mkinitcpio
 if fs_type == "ext4":
-    run(f"sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf", shell=True)
+    run("sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf", shell=True)
 elif fs_type == "btrfs":
-    run(f"sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)/g' /etc/mkinitcpio.conf", shell=True)
-    run(f"sed -i 's/BINARIES=()/BINARIES=(/usr/bin/btrfs)/g' /etc/mkinitcpio.conf", shell=True)
+    run("sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)/g' /etc/mkinitcpio.conf", shell=True)
+    run("sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/g' /etc/mkinitcpio.conf", shell=True)
 
 run("mkinitcpio -P", shell=True)
