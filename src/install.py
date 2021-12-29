@@ -76,9 +76,7 @@ cryptpass = ""
 if fs_type == "ext4" or fs_type == "btrfs":
     cryptpass = make_password("\nSetting encryption password...\n")
 
-    luks_options = input("\nAdditional cryptsetup options (e.g. `--type luks1`): ").strip()
-
-    run(f"echo '{cryptpass}' | cryptsetup -q luksFormat {luks_options} {root_part}", shell=True)
+    run(f"echo '{cryptpass}' | cryptsetup -q luksFormat --type luks1 {root_part}", shell=True)
     run(f"yes '{cryptpass}' | cryptsetup open {root_part} cryptroot", shell=True)
 
 if fs_type == "btrfs":
@@ -122,5 +120,5 @@ run(f"mount {part1} /mnt/boot", shell=True)
 
 # Install base system and kernel
 run(f"basestrap /mnt base base-devel openrc elogind-openrc {fs_pkgs} zsh python dhcpcd wpa_supplicant connman-openrc", shell=True)
-run("basestrap /mnt linux linux-firmware linux-headers", shell=True)
+run("basestrap /mnt linux linux-firmware linux-headers mkinitcpio", shell=True)
 run("fstabgen -U /mnt >> /mnt/etc/fstab", shell=True)

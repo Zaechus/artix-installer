@@ -90,17 +90,7 @@ else:
     ucode_img = "initrd=amd-ucode.img initrd=intel-ucode.img"
     ucode = "amd-ucode intel-ucode"
 
-boot_loader = input(
-    "\nBoot loader:"
-    "\n(1)  rEFInd"
-    "\n(2+) GRUB\n: "
-).strip()
-if boot_loader == "1":
-    boot_loader = "refind"
-else:
-    boot_loader = "grub"
-
-run(f"yes | pacman -S efibootmgr {boot_loader} {ucode}", shell=True)
+run(f"yes | pacman -S efibootmgr grub {ucode}", shell=True)
 root_part_uuid = check_output(f"sudo blkid {root_part} -o value -s UUID", shell=True).strip().decode("utf-8")
 
 root_flags = f"cryptdevice=UUID={root_part_uuid}:cryptroot"
@@ -109,18 +99,12 @@ if fs_type == "ext4":
 elif fs_type == "btrfs":
     root_flags = " root=/dev/mapper/cryptroot rootflags=subvol=root"
 
-if boot_loader == "refind":
-    run(f"printf '\"Boot with standard options\"  \"{root_flags} rw {ucode_img} initrd=initramfs-linux.img\"\n' > /boot/refind_linux.conf", shell=True)
+run(f"sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT.*$/GRUB_CMDLINE_LINUX_DEFAULT=\"{root_flags}\"/g' /etc/default/grub", shell=True)
+run(f"printf '\n\nGRUB_ENABLE_CRYPTODISK=y\n' >> /etc/default/grub", shell=True)
 
-    run("refind-install", shell=True)
-    run(f"refind-install --usedefault {part1}", shell=True)
-elif boot_loader == "grub":
-    run(f"sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT.*$/GRUB_CMDLINE_LINUX_DEFAULT=\"{root_flags}\"/g /etc/default/grub'", shell=True)
-    run(f"printf '\n\nGRUB_ENABLE_CRYPTODISK=y' >> /etc/default/grub", shell=True)
-
-    run("grub-install --target=x86_64-efi --efi-directory=/boot --recheck", shell=True)
-    run("grub-install --target=x86_64-efi --efi-directory=/boot --removable --recheck", shell=True)
-    run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
+run("grub-install --target=x86_64-efi --efi-directory=/boot --recheck", shell=True)
+run("grub-install --target=x86_64-efi --efi-directory=/boot --removable --recheck", shell=True)
+run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
 
 # Local.start
 run(f"printf 'rfkill unblock wifi\n' > /etc/local.d/local.start", shell=True)
@@ -146,8 +130,6 @@ run("sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers", shell=True)
 
 # Other stuff you should do or you'll be sad
 run("rc-update add connmand default", shell=True)
-motd = confirm_name("motd")
-run(f"printf '\n{motd}\n\n' > /etc/motd", shell=True)
 
 if fs_type == "ext4":
     run("printf '\n/dev/MyVolGrp/swap\t\tswap\t\tswap\t\tdefaults\t0 0\n' >> /etc/fstab", shell=True)

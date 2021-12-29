@@ -19,7 +19,7 @@ git clone https://github.com/Zaechus/artix-installer && \
 cd artix-installer
 ```
 4. Run `./install.sh`.
-5. When everything finishes, `poweroff`, remove the installation media, and boot into Artix.
+5. When everything finishes, `poweroff`, remove the installation media, and boot into Artix. Post-installation networking is done with Connman.
 
 ### Preinstallation
 
@@ -27,17 +27,3 @@ cd artix-installer
 * ISO files can be burned to drives with `dd` or something like Etcher.
 * `sudo dd bs=4M if=/path/to/artix.iso of=/dev/sd[drive letter] status=progress`
 * A better method these days is to use [Ventoy](https://www.ventoy.net/en/index.html)
-
-## Assumptions
-
-* You can follow basic instructions.
-* You don't mess up. The scripts will only hold your hand so far. Mistakes, of course, will either cause the script to kill itself or render the new unbootable.
-* You're aware that you'll manually have to enter `--type luks1` as a LUKS option until GRUB gains full support for LUKS2.
-* You're aware that the rEFInd option will probably work but lacks full testing because of issues with QEMU. Submit an issue if it doesn't work.
-
-## What you get
-
-A very minimal Artix Linux system with OpenRC and only essential packages.
-
-Post-installation networking is done with Connman.
-
