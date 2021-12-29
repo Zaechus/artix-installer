@@ -12,6 +12,7 @@ sudo ip link set wlan0 up
 connmanctl
 ```
 In Connman, use: `agent on`, `scan wifi`, `services`, `connect wifi_NAME`, `quit`
+
 3. Acquire the install scripts:
 ```
 yes | sudo pacman -Sy --needed git && \
