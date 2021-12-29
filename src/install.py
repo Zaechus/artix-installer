@@ -34,11 +34,7 @@ if "nvme" in disk:
     part1 = f"{disk}p1"
     part2 = f"{disk}p2"
     part3 = f"{disk}p3"
-run("yes | pacman -Sy --needed parted", shell=True)
-
-erase = input(f"\nWould you like to erase the contents of {disk}? (y/N): ").strip()
-if erase == "y":
-    run(f"dd bs=4096 if=/dev/zero of={disk} status=progress", shell=True)
+run("yes | pacman -S --needed parted", shell=True)
 
 swap_size = input("\nSize of swap partition (4GiB): ").strip()
 swap_size = "".join([x for x in swap_size if x.isdigit()])
@@ -61,7 +57,7 @@ else:
     root_part = part3
     fs_pkgs = "cryptsetup btrfs-progs"
 
-run(f"""parted -s {disk} mklable gpt \\
+run(f"""parted -s {disk} mklabel gpt \\
 mkpart fat32 0% 550MiB \\
 set 1 esp on""", shell=True)
 
