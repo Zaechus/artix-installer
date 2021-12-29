@@ -60,34 +60,11 @@ if len(region_city) < 3:
 run(f"ln -sf /usr/share/zoneinfo/{region_city} /etc/localtime", shell=True)
 run("hwclock --systohc", shell=True)
 
-# Configure pacman
-run("pacman -S artix-archlinux-support", shell=True)
-run("printf '\n#[testing]\n#Include = /etc/pacman.d/mirrorlist-arch\n\n[extra]\nInclude = /etc/pacman.d/mirrorlist-arch\n\n#[community-testing]\n#Include = /etc/pacman.d/mirrorlist-arch\n\n[community]\nInclude = /etc/pacman.d/mirrorlist-arch\n\n#[multilib-testing]\n#Include = /etc/pacman.d/mirrorlist-arch\n\n[multilib]\nInclude = /etc/pacman.d/mirrorlist-arch' >> /etc/pacman.conf", shell=True)
-run("pacman-key --populate archlinux", shell=True)
-run("yes | pacman -Syy neovim", shell=True)
-input("Configure pacman (color, multilib, etc.). [ENTER] ")
-run("nvim /etc/pacman.conf", shell=True)
-run("printf '\nkeyserver hkp://keyserver.ubuntu.com\n' >> /etc/pacman.d/gnupg/gpg.conf", shell=True)
-run("nvim /etc/pacman.d/gnupg/gpg.conf", shell=True)
-run("pacman-key --populate artix", shell=True)
-run("pacman-key --populate archlinux", shell=True)
-
-run("yes | pacman -Syyuu neofetch", shell=True)
-
 # Localization
-input("Uncomment locales (en_US.UTF-8). [ENTER] ")
-run("nvim /etc/locale.gen", shell=True)
+run("sed -i '/en_US\.UTF-8/s/^#//g' /etc/locale.gen", shell=True)
 run("locale-gen", shell=True)
-lang = input("LANG (en_US.UTF-8): ").strip()
-if len(lang) < 2:
-    lang = "en_US.UTF-8"
-
-keymap = input("KEYMAP (us): ").strip()
-if len(keymap) < 2:
-    keymap = "us"
-
-run(f"printf 'LANG={lang}\n' > /etc/locale.conf", shell=True)
-run(f"printf 'KEYMAP={keymap}\n' > /etc/vconsole.conf", shell=True)
+run(f"printf 'LANG=en_US.UTF-8\n' > /etc/locale.conf", shell=True)
+run(f"printf 'KEYMAP=us\n' > /etc/vconsole.conf", shell=True)
 
 # Host stuff
 hostname = confirm_name("hostname")
@@ -114,7 +91,7 @@ else:
     ucode = "amd-ucode intel-ucode"
 
 boot_loader = input(
-    "\nDesired boot loader:"
+    "\nBoot loader:"
     "\n(1)  rEFInd"
     "\n(2+) GRUB\n: "
 ).strip()
@@ -126,11 +103,11 @@ else:
 run(f"yes | pacman -S efibootmgr {boot_loader} {ucode}", shell=True)
 root_part_uuid = check_output(f"sudo blkid {root_part} -o value -s UUID", shell=True).strip().decode("utf-8")
 
-root_flags = ""
+root_flags = f"cryptdevice=UUID={root_part_uuid}:cryptroot"
 if fs_type == "ext4":
-    root_flags = f"cryptdevice=UUID={root_part_uuid}:cryptroot root=/dev/MyVolGrp/root"
+    root_flags = " root=/dev/MyVolGrp/root"
 elif fs_type == "btrfs":
-    root_flags = f"cryptdevice=UUID={root_part_uuid}:cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@"
+    root_flags = " root=/dev/mapper/cryptroot rootflags=subvol=root"
 
 if boot_loader == "refind":
     run(f"printf '\"Boot with standard options\"  \"{root_flags} rw {ucode_img} initrd=initramfs-linux.img\"\n' > /boot/refind_linux.conf", shell=True)
@@ -138,22 +115,18 @@ if boot_loader == "refind":
     run("refind-install", shell=True)
     run(f"refind-install --usedefault {part1}", shell=True)
 elif boot_loader == "grub":
-    run(f"printf '\n#{root_flags}' >> /etc/default/grub", shell=True)
+    run(f"sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT.*$/GRUB_CMDLINE_LINUX_DEFAULT=\"{root_flags}\"/g /etc/default/grub'", shell=True)
+    run(f"printf '\n\nGRUB_ENABLE_CRYPTODISK=y' >> /etc/default/grub", shell=True)
 
-    input("Configure GRUB (boot options, encryption, console, etc.). [ENTER] ")
-
-    run("nvim /etc/default/grub", shell=True)
-    run("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ARTIXGRUB --removable --recheck", shell=True)
+    run("grub-install --target=x86_64-efi --efi-directory=/boot --recheck", shell=True)
+    run("grub-install --target=x86_64-efi --efi-directory=/boot --removable --recheck", shell=True)
     run("grub-mkconfig -o /boot/grub/grub.cfg", shell=True)
 
 # Local.start
-run(f"printf 'rfkill unblock wifi\nneofetch >| /etc/issue\n' > /etc/local.d/local.start", shell=True)
+run(f"printf 'rfkill unblock wifi\n' > /etc/local.d/local.start", shell=True)
 run("chmod +x /etc/local.d/local.start", shell=True)
 
 # Add default user
-run("yes | pacman -S zsh", shell=True)
-run("chsh -s /bin/zsh", shell=True)
-
 root_password = make_password("\nChanging root password...\n")
 run(f"yes '{root_password}' | passwd", shell=True)
 
@@ -167,15 +140,11 @@ user_password = make_password("")
 run(f"yes '{user_password}' | passwd {username}", shell=True)
 run(f"usermod -a -G wheel {username}", shell=True)
 run(f"usermod -a -G video {username}", shell=True)
-run(f"usermod -a -G games {username}", shell=True)
-run(f"usermod -a -G lp {username}", shell=True)
 run(f"usermod -a -G audio {username}", shell=True)
 
-input("Allow wheel users to use sudo. [ENTER] ")
-run("EDITOR=nvim visudo", shell=True)
+run("sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers", shell=True)
 
 # Other stuff you should do or you'll be sad
-run("yes | pacman -S dhcpcd wpa_supplicant connman-openrc", shell=True)
 run("rc-update add connmand default", shell=True)
 motd = confirm_name("motd")
 run(f"printf '\n{motd}\n\n' > /etc/motd", shell=True)
@@ -188,18 +157,11 @@ elif fs_type == "btrfs":
     run(f"printf 'run_hook() {{\n\tcryptsetup open /dev/disk/by-uuid/{swap_uuid} cryptswap\n}}\n' > /etc/initcpio/hooks/openswap", shell=True)
     run("printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap", shell=True)
 
-run("nvim /etc/fstab", shell=True)
-
 # Configure mkinitcpio
 if fs_type == "ext4":
-    hooks_comment = "#HOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)"
-    bins_comment = "#BINARIES=()"
+    run(f"sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf", shell=True)
 elif fs_type == "btrfs":
-    hooks_comment = "#HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)"
-    bins_comment = "#BINARIES=(/usr/bin/btrfs)"
+    run(f"sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)/g' /etc/mkinitcpio.conf", shell=True)
+    run(f"sed -i 's/BINARIES=()/BINARIES=(/usr/bin/btrfs)/g' /etc/mkinitcpio.conf", shell=True)
 
-run(f"printf '\n{hooks_comment}' >> /etc/mkinitcpio.conf", shell=True)
-run(f"printf '\n{bins_comment}' >> /etc/mkinitcpio.conf", shell=True)
-input("Configure /etc/mkinitcpio.conf with the correct HOOKS AND BINARIES. [ENTER] ")
-run("nvim /etc/mkinitcpio.conf", shell=True)
 run("mkinitcpio -P", shell=True)

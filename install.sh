@@ -1,16 +1,12 @@
 #!/bin/sh
 
 # preinstall
-sudo rfkill unblock wifi
-sudo ip link set wlan0 up
-printf '\n> scan wifi\n> services\n> agent on\n> connect wifi_NAME\n> quit\n'
-sudo connmanctl
 yes | sudo pacman -Sy --needed python
 
 # install
 while :
 do
-    sudo sfdisk -l
+    sudo fdisk -l
     printf '\nDisk to install to (e.g. /dev/sda): ' && read MY_DISK
     if test -b "$MY_DISK"; then
         echo $MY_DISK
