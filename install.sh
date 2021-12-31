@@ -12,6 +12,18 @@ confirm_password () {
     echo $pass2
 }
 
+confirm_name () {
+    local pass1="a"
+    local pass2="b"
+    until [[ $pass1 == $pass2 ]]; do
+        printf "$1: " >&2 && read pass1
+        printf "\n" >&2
+        printf "confirm $1: " >&2 && read pass2
+        printf "\n" >&2
+    done
+    echo $pass2
+}
+
 # Load keymap
 sudo loadkeys us
 
@@ -67,10 +79,10 @@ printf "Region/City (e.g. 'America/Denver'): " && read region_city
 [[ ! -z region_city ]] && region_city="America/Denver"
 
 # Host
-my_hostname=$(confirm_password "hostname")
+my_hostname=$(confirm_name "hostname")
 
 # Microcode
-printf "Microcode (intel/amd/both):" && read ucode
+printf "Microcode (intel/amd/both): " && read ucode
 case ucode in
     intel)
         ucode="intel-ucode"
@@ -86,14 +98,16 @@ esac
 # Users
 root_password=$(confirm_password "root password")
 
-my_username=$(confirm_password "username")
+my_username=$(confirm_name "username")
 user_password=$(confirm_password "user password")
 
+echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap region_city=$region_city my_hostname=$my_hostname ucode=$ucode my_username=$my_username > installvars
+
 # Install
-sudo sh src/installer.sh
+sudo cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh src/installer.sh
 
 # Chroot
-sudo cp src/iamchroot.sh /mnt/root/
-sudo artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit'
-
-printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
+sudo cp src/iamchroot.sh /mnt/root/ && \
+    sudo mv installvars /mnt/root && \
+    sudo artix-chroot /mnt /bin/bash -c 'cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' && \
+    printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'

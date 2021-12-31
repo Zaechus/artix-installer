@@ -1,7 +1,9 @@
 #!/bin/sh
 
+source installvars
+
 # Partition disk
-yes | pacman -S --needed parted
+yes | pacman -Sy --needed parted
 
 fs_pkgs="cryptsetup btrfs-progs"
 [[ $my_fs == "ext4" ]] && fs_pkgs="cryptsetup lvm2 lvm2-openrc"
