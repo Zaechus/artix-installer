@@ -81,6 +81,12 @@ printf "Region/City (e.g. 'America/Denver'): " && read region_city
 # Host
 my_hostname=$(confirm_name "hostname")
 
+# Users
+root_password=$(confirm_password "root password")
+
+my_username=$(confirm_name "username")
+user_password=$(confirm_password "user password")
+
 # Microcode
 printf "Microcode (intel/amd/both): " && read ucode
 case ucode in
@@ -95,19 +101,17 @@ case ucode in
         ;;
 esac
 
-# Users
-root_password=$(confirm_password "root password")
-
-my_username=$(confirm_name "username")
-user_password=$(confirm_password "user password")
-
-echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap region_city=$region_city my_hostname=$my_hostname ucode="$ucode" my_username=$my_username > installvars
+installvars () {
+    my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
+        swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap \
+        region_city=$region_city my_hostname=$my_hostname my_username=$my_username \
+        cryptpass=$cryptpass root_password=$root_password user_password=$user_password ucode=\"$ucode\"
+}
 
 # Install
-cryptpass=$cryptpass root_password=$root_password user_password=$user_password source src/installer.sh
+installvars; sh src/installer.sh
 
 # Chroot
 sudo cp src/iamchroot.sh /mnt/root/ && \
-    sudo mv src/installvars /mnt/root && \
-    sudo artix-chroot /mnt /bin/bash -c 'cd /root; cryptpass=$cryptpass root_password=$root_password user_password=$user_password source iamchroot.sh; rm iamchroot.sh; exit' && \
+    sudo artix-chroot /mnt /bin/bash -c "installvars; sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit" && \
     printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'

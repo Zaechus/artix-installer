@@ -1,7 +1,5 @@
 #!/bin/sh
 
-source installvars
-
 # Boring stuff you should probably do
 ln -sf /usr/share/zoneinfo/$region_city /etc/localtime
 hwclock --systohc
@@ -68,5 +66,3 @@ else if [[ $my_fs == "btrfs" ]]; then
 fi
 
 mkinitcpio -P
-
-rm /root/installvars

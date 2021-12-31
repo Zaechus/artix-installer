@@ -1,7 +1,5 @@
 #!/bin/sh
 
-source installvars
-
 # Partition disk
 yes | pacman -Sy --needed parted
 
