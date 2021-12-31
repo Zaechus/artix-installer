@@ -40,6 +40,7 @@ printf "Size of swap partition in GiB (4): " && read swap_size
 # Choose filesystem
 until [[ $my_fs == "btrfs" || $my_fs == "ext4" ]]; do
     printf "Filesystem (btrfs/ext4): " && read my_fs
+    [[ ! -z my_fs ]] && my_fs="btrfs"
 done
 
 root_part=$part3
