@@ -10,11 +10,11 @@ confirm_password () {
     return $pass2
 }
 
-# Check boot mode
-[[ ! -d /sys/firmware/efi ]] && printf "Not booted in UEFI mode. Aborting..."; exit 1
-
 # Load keymap
-loadkeys us
+sudo loadkeys us
+
+# Check boot mode
+[[ ! -d /sys/firmware/efi ]] && printf "Not booted in UEFI mode. Aborting..." && exit 1
 
 # Choose disk
 while :
