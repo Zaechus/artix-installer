@@ -47,8 +47,8 @@ root_part=$part3
 [[ $my_fs == "ext4" ]] && root_part=$part2
 
 # Encrypt or not
-encrypted="y"
 printf "Encrypt? (Y/n): " && read encrypted
+[[ ! -z encrypted ]] && encrypted="y"
 
 my_root="/dev/mapper/root"
 my_swap="/dev/mapper/swap"
@@ -72,8 +72,10 @@ printf "Microcode (intel/amd/both):" && read ucode
 case ucode in
     intel)
         ucode="intel-ucode"
+        ;;
     amd)
         ucode="amd-ucode"
+        ;;
     *)
         ucode="intel-ucode amd-ucode"
         ;;
