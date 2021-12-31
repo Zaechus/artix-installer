@@ -4,10 +4,12 @@ confirm_password () {
     local pass1="a"
     local pass2="b"
     until [[ $pass1 == $pass2 ]]; do
-        printf "$1: " && read -rs pass1
-        printf "confirm $1: " && read -rs pass2
+        printf "$1: " >&2 && read -rs pass1
+        printf "\n" >&2
+        printf "confirm $1: " >&2 && read -rs pass2
+        printf "\n" >&2
     done
-    $2=$pass2
+    echo $pass2
 }
 
 # Load keymap
@@ -57,7 +59,7 @@ if [[ $encrypted == "n" ]]; then
     my_swap=$part2
     [[ $my_fs == "ext4" ]] && my_root=$part2 && my_swap="/dev/MyVolGrp/swap"
 else
-    confirm_password "encryption password" cryptpass
+    cryptpass=$(confirm_password "encryption password")
 fi
 
 # Timezone
@@ -65,7 +67,7 @@ printf "Region/City (e.g. 'America/Denver'): " && read region_city
 [[ ! -z region_city ]] && region_city="America/Denver"
 
 # Host
-confirm_password "hostname" my_hostname
+my_hostname=$(confirm_password "hostname")
 
 # Microcode
 printf "Microcode (intel/amd/both):" && read ucode
@@ -82,10 +84,10 @@ case ucode in
 esac
 
 # Users
-confirm_password "root password" root_password
+root_password=$(confirm_password "root password")
 
-confirm_password "username" my_username
-confirm_password "user password" user_password
+my_username=$(confirm_password "username")
+user_password=$(confirm_password "user password")
 
 # Install
 sudo sh src/installer.sh
