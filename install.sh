@@ -101,11 +101,10 @@ root_password=$(confirm_password "root password")
 my_username=$(confirm_name "username")
 user_password=$(confirm_password "user password")
 
-echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap region_city=$region_city my_hostname=$my_hostname ucode=$ucode my_username=$my_username > installvars
+echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap region_city=$region_city my_hostname=$my_hostname ucode="$ucode" my_username=$my_username > installvars
 
 # Install
-mv installvars src/installvars && \
-    sudo cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh src/installer.sh
+cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh src/installer.sh
 
 # Chroot
 sudo cp src/iamchroot.sh /mnt/root/ && \
