@@ -88,7 +88,7 @@ my_username=$(confirm_name "username")
 user_password=$(confirm_password "user password")
 
 # Microcode
-printf "Microcode (intel/amd/both): " && read ucode
+printf "Microcode (intel/amd/none): " && read ucode
 case ucode in
     intel)
         ucode="intel-ucode"
@@ -97,7 +97,7 @@ case ucode in
         ucode="amd-ucode"
         ;;
     *)
-        ucode="intel-ucode amd-ucode"
+        ucode=""
         ;;
 esac
 
@@ -105,13 +105,13 @@ installvars () {
     my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
         swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap \
         region_city=$region_city my_hostname=$my_hostname my_username=$my_username \
-        cryptpass=$cryptpass root_password=$root_password user_password=$user_password ucode=\"$ucode\"
+        cryptpass=$cryptpass root_password=$root_password user_password=$user_password ucode=$ucode
 }
 
 # Install
-installvars; sh src/installer.sh
+sudo $(installvars) sh src/installer.sh
 
 # Chroot
 sudo cp src/iamchroot.sh /mnt/root/ && \
-    sudo artix-chroot /mnt /bin/bash -c "installvars; sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit" && \
+    sudo artix-chroot /mnt /bin/bash -c "$(installvars) sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit" && \
     printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
