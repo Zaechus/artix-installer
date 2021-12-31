@@ -4,8 +4,8 @@ confirm_password () {
     local pass1=0
     local pass2=1
     until [[ $pass1 == $pass2 ]]; do
-        printf "$1: " && read -rs $pass1
-        printf "confirm $1: " && read -rs $pass2
+        printf "$1: " && read -rs pass1
+        printf "confirm $1: " && read -rs pass2
     done
     return $pass2
 }
