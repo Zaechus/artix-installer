@@ -104,10 +104,11 @@ user_password=$(confirm_password "user password")
 echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap region_city=$region_city my_hostname=$my_hostname ucode=$ucode my_username=$my_username > installvars
 
 # Install
-sudo cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh src/installer.sh
+mv installvars src/installvars && \
+    sudo cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh src/installer.sh
 
 # Chroot
 sudo cp src/iamchroot.sh /mnt/root/ && \
-    sudo mv installvars /mnt/root && \
-    sudo artix-chroot /mnt /bin/bash -c 'cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' && \
+    sudo mv src/installvars /mnt/root && \
+    sudo artix-chroot /mnt /bin/bash -c 'cd /root; cryptpass=$cryptpass root_password=$root_password user_password=$user_password sh iamchroot.sh; rm iamchroot.sh; exit' && \
     printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
