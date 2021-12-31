@@ -102,7 +102,7 @@ case ucode in
 esac
 
 installvars () {
-    my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
+    echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
         swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypt=$encrypt my_root=$my_root my_swap=$my_swap \
         region_city=$region_city my_hostname=$my_hostname my_username=$my_username \
         cryptpass=$cryptpass root_password=$root_password user_password=$user_password ucode=$ucode
