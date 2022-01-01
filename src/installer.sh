@@ -3,8 +3,13 @@
 # Partition disk
 yes | pacman -Sy --needed parted
 
-fs_pkgs="cryptsetup btrfs-progs"
-[[ $my_fs == "ext4" ]] && fs_pkgs="cryptsetup lvm2 lvm2-openrc"
+if [[ $encrypted != "n" ]]; then
+    [[ $my_fs == "btrfs" ]] && fs_pkgs="cryptsetup btrfs-progs"
+    [[ $my_fs == "ext4" ]] && fs_pkgs="cryptsetup lvm2 lvm2-openrc"
+else
+    [[ $my_fs == "btrfs" ]] && fs_pkgs="btrfs-progs"
+    [[ $my_fs == "ext4" ]] && fs_pkgs="lvm2 lvm2-openrc"
+fi
 
 parted -s $my_disk mklabel gpt \
     mkpart fat32 0% 550MiB \
