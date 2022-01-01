@@ -108,7 +108,7 @@ installvars () {
         cryptpass=$cryptpass root_password=$root_password user_password=$user_password ucode=$ucode
 }
 
-printf "\nDone with configuration. Installing...\n"
+printf "\nDone with configuration. Installing...\n\n"
 
 # Install
 sudo $(installvars) sh src/installer.sh
