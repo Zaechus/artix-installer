@@ -39,15 +39,17 @@ done
 part1="$my_disk"1
 part2="$my_disk"2
 part3="$my_disk"3
-if [[ "nvme" == *"$my_disk"* ]]; then
+if [[ $my_disk == *"nvme"* ]]; then
     part1="$my_disk"p1
     part2="$my_disk"p2
     part3="$my_disk"p3
 fi
 
 # Swap size
-printf "Size of swap partition in GiB (4): " && read swap_size
-[[ ! $swap_size ]] && swap_size=4
+until [[ $swap_size =~ ^[0-9]+$ && (($swap_size > 0)) && (($swap_size < 97)) ]]; do
+    printf "Size of swap partition in GiB (4): " && read swap_size
+    [[ ! $swap_size ]] && swap_size=4
+done
 
 # Choose filesystem
 until [[ $my_fs == "btrfs" || $my_fs == "ext4" ]]; do
@@ -87,25 +89,11 @@ root_password=$(confirm_password "root password")
 my_username=$(confirm_name "username")
 user_password=$(confirm_password "user password")
 
-# Microcode
-printf "Microcode (intel/amd/none): " && read ucode
-case ucode in
-    intel)
-        ucode="intel-ucode"
-        ;;
-    amd)
-        ucode="amd-ucode"
-        ;;
-    *)
-        ucode=""
-        ;;
-esac
-
 installvars () {
     echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
         swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted my_root=$my_root my_swap=$my_swap \
         region_city=$region_city my_hostname=$my_hostname my_username=$my_username \
-        cryptpass=$cryptpass root_password=$root_password user_password=$user_password ucode=$ucode
+        cryptpass=$cryptpass root_password=$root_password user_password=$user_password
 }
 
 printf "\nDone with configuration. Installing...\n\n"

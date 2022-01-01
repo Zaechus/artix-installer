@@ -71,6 +71,9 @@ mkswap $my_swap
 mkdir /mnt/boot
 mount $part1 /mnt/boot
 
+[[ $(grep 'vendor' /proc/cpuinfo) == *"Intel"* ]] && ucode="intel-ucode"
+[[ $(grep 'vendor' /proc/cpuinfo) == *"Amd"* ]] && ucode="amd-ucode"
+
 # Install base system and kernel
 basestrap /mnt base base-devel openrc elogind-openrc $fs_pkgs efibootmgr grub $ucode zsh dhcpcd wpa_supplicant connman-openrc
 basestrap /mnt linux linux-firmware linux-headers mkinitcpio
