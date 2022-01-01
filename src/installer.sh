@@ -23,12 +23,12 @@ fi
 
 # Format and mount partitions
 if [[ $encrypted != "n" ]]; then
-    printf $cryptpass | cryptsetup -q luksFormat --type luks1 $root_part
-    printf $cryptpass | cryptsetup open $root_part root
+    yes $cryptpass | cryptsetup -q luksFormat --type luks1 $root_part
+    yes $cryptpass | cryptsetup open $root_part root
 
     if [[ $my_fs == "btrfs" ]]; then
-        printf $cryptpass | cryptsetup -q luksFormat $part2
-        printf $cryptpass | cryptsetup open $part2 swap
+        yes $cryptpass | cryptsetup -q luksFormat $part2
+        yes $cryptpass | cryptsetup open $part2 swap
     fi
 fi
 

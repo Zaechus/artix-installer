@@ -3,7 +3,7 @@
 confirm_password () {
     local pass1="a"
     local pass2="b"
-    until [[ $pass1 == $pass2 && -z $pass2 ]]; do
+    until [[ $pass1 == $pass2 && $pass2 ]]; do
         printf "$1: " >&2 && read -rs pass1
         printf "\n" >&2
         printf "confirm $1: " >&2 && read -rs pass2
@@ -15,7 +15,7 @@ confirm_password () {
 confirm_name () {
     local name1="a"
     local name2="b"
-    until [[ $name1 == $name2 && -z $name2 ]]; do
+    until [[ $name1 == $name2 && $name2 ]]; do
         printf "$1: " >&2 && read name1
         printf "\n" >&2
         printf "confirm $1: " >&2 && read name2
@@ -49,12 +49,12 @@ fi
 
 # Swap size
 printf "Size of swap partition in GiB (4): " && read swap_size
-[[ ! -z swap_size ]] && swap_size=4
+[[ ! swap_size ]] && swap_size=4
 
 # Choose filesystem
 until [[ $my_fs == "btrfs" || $my_fs == "ext4" ]]; do
     printf "Filesystem (btrfs/ext4): " && read my_fs
-    [[ ! -z my_fs ]] && my_fs="btrfs"
+    [[ ! my_fs ]] && my_fs="btrfs"
 done
 
 root_part=$part3
@@ -62,7 +62,7 @@ root_part=$part3
 
 # Encrypt or not
 printf "Encrypt? (Y/n): " && read encrypted
-[[ ! -z encrypted ]] && encrypted="y"
+[[ ! encrypted ]] && encrypted="y"
 
 my_root="/dev/mapper/root"
 my_swap="/dev/mapper/swap"
@@ -75,8 +75,10 @@ else
 fi
 
 # Timezone
-printf "Region/City (e.g. 'America/Denver'): " && read region_city
-[[ ! -z region_city ]] && region_city="America/Denver"
+until [[ -f /usr/share/zoneinfo/$region_city ]]; do
+    printf "Region/City (e.g. 'America/Denver'): " && read region_city
+    [[ ! region_city ]] && region_city="America/Denver"
+do
 
 # Host
 my_hostname=$(confirm_name "hostname")
