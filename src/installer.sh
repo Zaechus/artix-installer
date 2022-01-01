@@ -14,7 +14,7 @@ if [[ $my_fs == "ext4" ]]; then
     parted -s $my_disk \
         mkpart ext4 550MiB 100% \
         set 2 lvm on
-else if [[ $my_fs == "btrfs" ]]; then
+elif [[ $my_fs == "btrfs" ]]; then
     parted -s $my_disk \
         mkpart linux-swap 550MiB $((1+$swap_size*1024))MiB \
         mkpart btrfs $((1+$swap_size*1024))MiB 100% \
@@ -44,7 +44,7 @@ if [[ $my_fs == "ext4" ]]; then
     mkfs.ext4 /dev/MyVolGrp/root
 
     mount /dev/MyVolGrp/root /mnt
-else if [[ $my_fs == "btrfs" ]]; then
+elif [[ $my_fs == "btrfs" ]]; then
     mkfs.btrfs $my_root
 
     # Create subvolumes

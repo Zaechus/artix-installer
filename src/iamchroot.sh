@@ -60,7 +60,7 @@ fi
 # Configure mkinitcpio
 if [[ $my_fs == "ext4" ]]; then
     sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf
-else if [[ $my_fs == "btrfs" ]]; then
+elif [[ $my_fs == "btrfs" ]]; then
     sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)/g' /etc/mkinitcpio.conf
     sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/g' /etc/mkinitcpio.conf
 fi

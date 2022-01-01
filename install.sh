@@ -3,7 +3,7 @@
 confirm_password () {
     local pass1="a"
     local pass2="b"
-    until [[ $pass1 == $pass2 ]]; do
+    until [[ $pass1 == $pass2 && -z $pass2 ]]; do
         printf "$1: " >&2 && read -rs pass1
         printf "\n" >&2
         printf "confirm $1: " >&2 && read -rs pass2
@@ -13,15 +13,15 @@ confirm_password () {
 }
 
 confirm_name () {
-    local pass1="a"
-    local pass2="b"
-    until [[ $pass1 == $pass2 ]]; do
-        printf "$1: " >&2 && read pass1
+    local name1="a"
+    local name2="b"
+    until [[ $name1 == $name2 && -z $name2 ]]; do
+        printf "$1: " >&2 && read name1
         printf "\n" >&2
-        printf "confirm $1: " >&2 && read pass2
+        printf "confirm $1: " >&2 && read name2
         printf "\n" >&2
     done
-    echo $pass2
+    echo $name2
 }
 
 # Load keymap
