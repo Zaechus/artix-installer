@@ -63,8 +63,13 @@ printf "\n$my_swap\t\tswap\t\tswap\t\tsw\t0 0\n" >> /etc/fstab
 if [[ $encrypted != "n" && $my_fs == "btrfs" ]]; then
     swap_uuid=$(blkid $part2 -o value -s UUID)
 
-    printf "run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/$swap_uuid swap\n}\n" > /etc/initcpio/hooks/openswap
-    printf "build() {\n\tadd_runscript\n}\n" > /etc/initcpio/install/openswap
+    mkdir /root/.keyfiles
+    chmod 0400 /root/.keyfiles
+    dd if=/dev/urandom of=/root/.keyfiles/main bs=1024 count=4
+    cryptsetup luksAddKey $part2 /root/.keyfiles/main
+    printf "dmcrypt_key_timeout=1\ndmcrypt_retries=5\n\ntarget='swap'\nsource=UUID='$swap_uuid'\nkey='/root/.keyfiles/main'\n#\n" > /etc/conf.d/dmcrypt
+
+    rc-update add dmcrypt boot
 fi
 
 # Configure mkinitcpio
@@ -77,7 +82,7 @@ if [[ $my_fs == "ext4" ]]; then
 elif [[ $my_fs == "btrfs" ]]; then
     sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/g' /etc/mkinitcpio.conf
     if [[ $encrypted != "n" ]]; then
-        sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt openswap filesystems fsck)/g' /etc/mkinitcpio.conf
+        sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt filesystems fsck)/g' /etc/mkinitcpio.conf
     else
         sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block filesystems fsck)/g' /etc/mkinitcpio.conf
     fi

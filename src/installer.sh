@@ -4,7 +4,7 @@
 yes | pacman -Sy --needed parted
 
 if [[ $encrypted != "n" ]]; then
-    [[ $my_fs == "btrfs" ]] && fs_pkgs="cryptsetup btrfs-progs"
+    [[ $my_fs == "btrfs" ]] && fs_pkgs="cryptsetup cryptsetup-openrc btrfs-progs"
     [[ $my_fs == "ext4" ]] && fs_pkgs="cryptsetup lvm2 lvm2-openrc"
 else
     [[ $my_fs == "btrfs" ]] && fs_pkgs="btrfs-progs"
