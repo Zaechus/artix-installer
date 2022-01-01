@@ -66,7 +66,7 @@ if [[ $encrypted != "n" && $my_fs == "btrfs" ]]; then
     mkdir /root/.keyfiles
     chmod 0400 /root/.keyfiles
     dd if=/dev/urandom of=/root/.keyfiles/main bs=1024 count=4
-    cryptsetup luksAddKey $part2 /root/.keyfiles/main
+    yes $cryptpass | cryptsetup luksAddKey $part2 /root/.keyfiles/main
     printf "dmcrypt_key_timeout=1\ndmcrypt_retries=5\n\ntarget='swap'\nsource=UUID='$swap_uuid'\nkey='/root/.keyfiles/main'\n#\n" > /etc/conf.d/dmcrypt
 
     rc-update add dmcrypt boot
