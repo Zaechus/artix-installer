@@ -108,10 +108,12 @@ installvars () {
         cryptpass=$cryptpass root_password=$root_password user_password=$user_password ucode=$ucode
 }
 
+printf "\nDone with configuration. Installing...\n"
+
 # Install
 sudo $(installvars) sh src/installer.sh
 
 # Chroot
 sudo cp src/iamchroot.sh /mnt/root/ && \
-    sudo artix-chroot /mnt /bin/bash -c "$(installvars) sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit" && \
+    sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' && \
     printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
