@@ -12,8 +12,8 @@ printf "KEYMAP=us\n" > /etc/vconsole.conf
 
 # Host stuff
 printf "$my_hostname\n" > /etc/hostname
-printf "hostname=\"$hostname\"\n" > /etc/conf.d/hostname
-printf "\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t$hostname.localdomain\t$hostname\n" > /etc/hosts
+printf "hostname=\"$my_hostname\"\n" > /etc/conf.d/hostname
+printf "\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t$my_hostname.localdomain\t$my_hostname\n" > /etc/hosts
 
 # Install boot loader
 root_part_uuid=$(blkid $root_part -o value -s UUID)
@@ -59,11 +59,12 @@ rc-update add connmand default
 [[ $my_fs == "ext4" ]] && rc-update add lvm boot
 
 printf "\n$my_swap\t\tswap\t\tswap\t\tsw\t0 0\n" >> /etc/fstab
+
 if [[ $encrypted != "n" && $my_fs == "btrfs" ]]; then
     swap_uuid=$(blkid $part2 -o value -s UUID)
 
-    printf 'run_hook() {{\n\tcryptsetup open /dev/disk/by-uuid/{swap_uuid} cryptswap\n}}\n' > /etc/initcpio/hooks/openswap
-    printf 'build() {\n\tadd_runscript\n}\n' > /etc/initcpio/install/openswap
+    printf "run_hook() {\n\tcryptsetup open /dev/disk/by-uuid/$swap_uuid swap\n}\n" > /etc/initcpio/hooks/openswap
+    printf "build() {\n\tadd_runscript\n}\n" > /etc/initcpio/install/openswap
 fi
 
 # Configure mkinitcpio

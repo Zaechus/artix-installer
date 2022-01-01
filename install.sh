@@ -17,9 +17,7 @@ confirm_name () {
     local name2="b"
     until [[ $name1 == $name2 && $name2 ]]; do
         printf "$1: " >&2 && read name1
-        printf "\n" >&2
         printf "confirm $1: " >&2 && read name2
-        printf "\n" >&2
     done
     echo $name2
 }
