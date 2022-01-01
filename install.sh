@@ -54,7 +54,7 @@ printf "Size of swap partition in GiB (4): " && read swap_size
 # Choose filesystem
 until [[ $my_fs == "btrfs" || $my_fs == "ext4" ]]; do
     printf "Filesystem (btrfs/ext4): " && read my_fs
-    [[ ! my_fs ]] && my_fs="btrfs"
+    [[ ! $my_fs ]] && my_fs="btrfs"
 done
 
 root_part=$part3
@@ -62,7 +62,7 @@ root_part=$part3
 
 # Encrypt or not
 printf "Encrypt? (Y/n): " && read encrypted
-[[ ! encrypted ]] && encrypted="y"
+[[ ! $encrypted ]] && encrypted="y"
 
 my_root="/dev/mapper/root"
 my_swap="/dev/mapper/swap"
@@ -77,8 +77,8 @@ fi
 # Timezone
 until [[ -f /usr/share/zoneinfo/$region_city ]]; do
     printf "Region/City (e.g. 'America/Denver'): " && read region_city
-    [[ ! region_city ]] && region_city="America/Denver"
-do
+    [[ ! $region_city ]] && region_city="America/Denver"
+done
 
 # Host
 my_hostname=$(confirm_name "hostname")
