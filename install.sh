@@ -46,7 +46,7 @@ if [[ $my_disk == *"nvme"* ]]; then
 fi
 
 # Swap size
-until [[ $swap_size =~ ^[0-9]+$ && (($swap_size > 0)) && (($swap_size < 97)) ]]; do
+until [[ $swap_size =~ ^[0-9]+$ && (($swap_size -gt 0)) && (($swap_size -lt 97)) ]]; do
     printf "Size of swap partition in GiB (4): " && read swap_size
     [[ ! $swap_size ]] && swap_size=4
 done
