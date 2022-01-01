@@ -38,7 +38,7 @@ if [[ $my_fs == "ext4" ]]; then
     # Setup LVM
     pvcreate $my_root
     vgcreate MyVolGrp $my_root
-    lvcreate -L $swap_sizeG MyVolGrp -n swap
+    lvcreate -L $(echo $swap_size)G MyVolGrp -n swap
     lvcreate -l 100%FREE MyVolGrp -n root
 
     mkfs.ext4 /dev/MyVolGrp/root
