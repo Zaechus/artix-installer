@@ -16,8 +16,8 @@ if [[ $my_fs == "ext4" ]]; then
         set 2 lvm on
 elif [[ $my_fs == "btrfs" ]]; then
     parted -s $my_disk \
-        mkpart linux-swap 550MiB $((1+$swap_size*1024))MiB \
-        mkpart btrfs $((1+$swap_size*1024))MiB 100% \
+        mkpart linux-swap 550MiB $((550+$swap_size*1024))MiB \
+        mkpart btrfs $((550+$swap_size*1024))MiB 100% \
         set 2 swap on
 fi
 
@@ -69,4 +69,4 @@ mount $part1 /mnt/boot
 # Install base system and kernel
 basestrap /mnt base base-devel openrc elogind-openrc $fs_pkgs efibootmgr grub $ucode zsh dhcpcd wpa_supplicant connman-openrc
 basestrap /mnt linux linux-firmware linux-headers mkinitcpio
-fstabgen -U /mnt >> /mnt/etc/fstab
+fstabgen -U /mnt > /mnt/etc/fstab

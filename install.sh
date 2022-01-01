@@ -49,7 +49,7 @@ fi
 
 # Swap size
 printf "Size of swap partition in GiB (4): " && read swap_size
-[[ ! swap_size ]] && swap_size=4
+[[ ! $swap_size ]] && swap_size=4
 
 # Choose filesystem
 until [[ $my_fs == "btrfs" || $my_fs == "ext4" ]]; do
