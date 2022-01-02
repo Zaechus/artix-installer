@@ -1,6 +1,6 @@
 # artix-installer
 
-A stupid installer for Artix Linux
+A simple installer for Artix Linux
 
 ## Usage
 
