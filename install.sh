@@ -88,10 +88,11 @@ my_swap="/dev/mapper/swap"
 if [[ $encrypted == "n" ]]; then
     my_root=$part3
     my_swap=$part2
-    [[ $my_fs == "ext4" ]] && my_root=$part2 && my_swap="/dev/MyVolGrp/swap"
+    [[ $my_fs == "ext4" ]] && my_root=$part2
 else
     cryptpass=$(confirm_password "encryption password")
 fi
+[[ $my_fs == "ext4" ]] && my_swap="/dev/MyVolGrp/swap"
 
 # Timezone
 until [[ -f /usr/share/zoneinfo/$region_city ]]; do
