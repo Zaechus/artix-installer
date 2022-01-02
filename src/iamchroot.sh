@@ -34,10 +34,6 @@ grub-install --target=x86_64-efi --efi-directory=/boot --recheck
 grub-install --target=x86_64-efi --efi-directory=/boot --removable --recheck
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# Local.start
-printf "rfkill unblock wifi\n" > /etc/local.d/local.start
-chmod +x /etc/local.d/local.start
-
 # Add default user
 yes $root_password | passwd
 
