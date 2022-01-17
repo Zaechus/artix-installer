@@ -53,18 +53,8 @@ grub-install --target=x86_64-efi --efi-directory=/boot --recheck
 grub-install --target=x86_64-efi --efi-directory=/boot --removable --recheck
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# Add default user
+# Root user
 yes $root_password | passwd
-
-rm /etc/skel/.bash*
-useradd -D -s /bin/zsh
-
-useradd -m $my_username
-
-yes $user_password | passwd $my_username
-usermod -a -G wheel $my_username
-usermod -a -G video $my_username
-usermod -a -G audio $my_username
 
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
 
