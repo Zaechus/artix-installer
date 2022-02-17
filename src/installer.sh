@@ -74,15 +74,12 @@ elif [[ $my_fs == "btrfs" ]]; then
     # Create subvolumes
     mount $my_root /mnt
     btrfs subvolume create /mnt/root
-    btrfs subvolume create /mnt/snapshots
     btrfs subvolume create /mnt/home
     umount -R /mnt
 
     # Mount subvolumes
     mount -t btrfs -o compress=zstd,subvol=root $my_root /mnt
-    mkdir /mnt/.snapshots
     mkdir /mnt/home
-    mount -t btrfs -o compress=zstd,subvol=snapshots $my_root /mnt/.snapshots
     mount -t btrfs -o compress=zstd,subvol=home $my_root /mnt/home
 fi
 
