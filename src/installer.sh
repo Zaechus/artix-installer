@@ -31,17 +31,17 @@ else
 fi
 
 parted -s $my_disk mklabel gpt \
-    mkpart fat32 0% 550MiB \
+    mkpart boot 0% 550MiB \
     set 1 esp on
 
 if [[ $my_fs == "ext4" ]]; then
     parted -s $my_disk \
-        mkpart ext4 550MiB 100% \
+        mkpart root 550MiB 100% \
         set 2 lvm on
 elif [[ $my_fs == "btrfs" ]]; then
     parted -s $my_disk \
-        mkpart linux-swap 550MiB $((550+$swap_size*1024))MiB \
-        mkpart btrfs $((550+$swap_size*1024))MiB 100% \
+        mkpart swap 550MiB $((550+$swap_size*1024))MiB \
+        mkpart root $((550+$swap_size*1024))MiB 100% \
         set 2 swap on
 fi
 
