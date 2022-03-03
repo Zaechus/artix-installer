@@ -20,8 +20,6 @@
 # along with artix-installer. If not, see <https://www.gnu.org/licenses/>.
 
 # Partition disk
-yes | pacman -Sy --needed parted
-
 if [[ $encrypted != "n" ]]; then
     [[ $my_fs == "btrfs" ]] && fs_pkgs="cryptsetup cryptsetup-openrc btrfs-progs"
     [[ $my_fs == "ext4" ]] && fs_pkgs="cryptsetup lvm2 lvm2-openrc"
@@ -30,20 +28,12 @@ else
     [[ $my_fs == "ext4" ]] && fs_pkgs="lvm2 lvm2-openrc"
 fi
 
-parted -s $my_disk mklabel gpt \
-    mkpart boot 0% 550MiB \
-    set 1 esp on
-
 if [[ $my_fs == "ext4" ]]; then
-    parted -s $my_disk \
-        mkpart root 550MiB 100% \
-        set 2 lvm on
+    layout=",,V"
 elif [[ $my_fs == "btrfs" ]]; then
-    parted -s $my_disk \
-        mkpart swap 550MiB $((550+$swap_size*1024))MiB \
-        mkpart root $((550+$swap_size*1024))MiB 100% \
-        set 2 swap on
+    layout=",$(echo $wap_size)G,S\n,,L"
 fi
+printf "label: gpt\n,550M,U\n$layout\n" | sfdisk $my_disk
 
 # Format and mount partitions
 if [[ $encrypted != "n" ]]; then
