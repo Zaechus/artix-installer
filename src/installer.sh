@@ -31,7 +31,7 @@ fi
 if [[ $my_fs == "ext4" ]]; then
     layout=",,V"
 elif [[ $my_fs == "btrfs" ]]; then
-    layout=",$(echo $wap_size)G,S\n,,L"
+    layout=",$(echo $swap_size)G,S\n,,L"
 fi
 printf "label: gpt\n,550M,U\n$layout\n" | sfdisk $my_disk
 

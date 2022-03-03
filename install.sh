@@ -31,16 +31,6 @@ confirm_password () {
     echo $pass2
 }
 
-confirm_name () {
-    local name1="a"
-    local name2="b"
-    until [[ $name1 == $name2 && $name2 ]]; do
-        printf "$1: " >&2 && read name1
-        printf "confirm $1: " >&2 && read name2
-    done
-    echo $name2
-}
-
 # Load keymap
 sudo loadkeys us
 
@@ -101,7 +91,11 @@ until [[ -f /usr/share/zoneinfo/$region_city ]]; do
 done
 
 # Host
-my_hostname=$(confirm_name "hostname")
+while :
+do
+    printf "Hostname: " && read my_hostname
+    [[ $my_hostname ]] && break
+done
 
 # Users
 root_password=$(confirm_password "root password")
