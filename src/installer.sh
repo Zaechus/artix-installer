@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 #
 # A simple installer for Artix Linux
 #
