@@ -1,5 +1,7 @@
 # artix-installer
 
+![](https://img.shields.io/badge/OS-Artix%20Linux-blue?logo=Artix+Linux)
+
 A simple installer for Artix Linux
 
 ## Usage
