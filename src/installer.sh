@@ -33,7 +33,12 @@ if [[ $my_fs == "ext4" ]]; then
 elif [[ $my_fs == "btrfs" ]]; then
     layout=",$(echo $swap_size)G,S\n,,L"
 fi
-printf "label: gpt\n,550M,U\n$layout\n" | sfdisk $my_disk
+
+if [[ $bootmode == "bios" ]]; then
+    printf "label: gpt\n,1M,21686148-6449-6E6F-744E-656564454649\n$layout\n" | sfdisk $my_disk
+else
+    printf "label: gpt\n,550M,U\n$layout\n" | sfdisk $my_disk
+fi
 
 # Format and mount partitions
 if [[ $encrypted != "n" ]]; then
@@ -46,7 +51,7 @@ if [[ $encrypted != "n" ]]; then
     fi
 fi
 
-mkfs.fat -F 32 $part1
+[[ $bootmode != "bios" ]] && mkfs.fat -F 32 $part1
 
 if [[ $my_fs == "ext4" ]]; then
     # Setup LVM
@@ -74,13 +79,19 @@ elif [[ $my_fs == "btrfs" ]]; then
 fi
 
 mkswap $my_swap
-mkdir /mnt/boot
-mount $part1 /mnt/boot
 
+# Boot
+mkdir /mnt/boot
+if [[ $bootmode != "bios" ]]; then
+    mount $part1 /mnt/boot
+    boot_pkgs=efibootmgr
+fi
+
+# Determine which microcode
 [[ $(grep 'vendor' /proc/cpuinfo) == *"Intel"* ]] && ucode="intel-ucode"
 [[ $(grep 'vendor' /proc/cpuinfo) == *"Amd"* ]] && ucode="amd-ucode"
 
 # Install base system and kernel
-basestrap /mnt base base-devel openrc elogind-openrc $fs_pkgs efibootmgr grub $ucode dhcpcd wpa_supplicant connman-openrc
+basestrap /mnt base base-devel openrc elogind-openrc $fs_pkgs $boot_pkgs grub $ucode dhcpcd wpa_supplicant connman-openrc
 basestrap /mnt linux linux-firmware linux-headers mkinitcpio
 fstabgen -U /mnt > /mnt/etc/fstab

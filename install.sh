@@ -35,7 +35,7 @@ confirm_password () {
 sudo loadkeys us
 
 # Check boot mode
-[[ ! -d /sys/firmware/efi ]] && printf "Not booted in UEFI mode. Aborting..." && exit 1
+bootmode=$(test -d /sys/firmware/efi && echo uefi || echo bios)
 
 # Choose disk
 while :
@@ -101,8 +101,9 @@ done
 root_password=$(confirm_password "root password")
 
 installvars () {
-    echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
-        swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted my_root=$my_root my_swap=$my_swap \
+    echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 bootmode=$bootmode \
+        swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted \
+        my_root=$my_root my_swap=$my_swap \
         region_city=$region_city my_hostname=$my_hostname \
         cryptpass=$cryptpass root_password=$root_password
 }
@@ -113,6 +114,5 @@ printf "\nDone with configuration. Installing...\n\n"
 sudo $(installvars) sh src/installer.sh
 
 # Chroot
-sudo cp src/iamchroot.sh /mnt/root/ && \
-    sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' && \
+sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh src/iamchroot.sh; exit' && \
     printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
