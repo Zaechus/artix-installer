@@ -50,7 +50,7 @@ sed -i "s/^GRUB_CMDLINE_LINUX_DEFAULT.*$/GRUB_CMDLINE_LINUX_DEFAULT=\"$my_params
 [[ $encrypted != "n" ]] && sed -i '/GRUB_ENABLE_CRYPTODISK=y/s/^#//g' /etc/default/grub
 
 if [[ $bootmode == "bios" ]]; then
-    grub-install --target=i386-pc $part1
+    grub-install --target=i386-pc --recheck $part1
 else
     grub-install --target=x86_64-efi --efi-directory=/boot --recheck
     grub-install --target=x86_64-efi --efi-directory=/boot --removable --recheck
