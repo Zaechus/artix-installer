@@ -40,13 +40,14 @@ else
     printf "label: gpt\n,550M,U\n$layout\n" | sfdisk $my_disk
 fi
 
+[[ $bootmode == "bios" ]] && lukstype="--type luks1"
 # Format and mount partitions
 if [[ $encrypted != "n" ]]; then
-    yes $cryptpass | cryptsetup -q luksFormat $root_part
+    yes $cryptpass | cryptsetup -q luksFormat $root_part $lukstype
     yes $cryptpass | cryptsetup open $root_part root
 
     if [[ $my_fs == "btrfs" ]]; then
-        yes $cryptpass | cryptsetup -q luksFormat $part2
+        yes $cryptpass | cryptsetup -q luksFormat $part2 $lukstype
         yes $cryptpass | cryptsetup open $part2 swap
     fi
 fi

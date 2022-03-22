@@ -48,8 +48,10 @@ fi
 
 sed -i "s/^GRUB_CMDLINE_LINUX_DEFAULT.*$/GRUB_CMDLINE_LINUX_DEFAULT=\"$my_params\"/g" /etc/default/grub
 [[ $encrypted != "n" ]] && sed -i '/GRUB_ENABLE_CRYPTODISK=y/s/^#//g' /etc/default/grub
+[[ $encrypted != "n" && $bootmode == "bios" ]] && sed -i 's/^GRUB_PRELOAD_MODULES.*$/GRUB_PRELOAD_MODULES="part_gpt part_msdos luks"/g' /etc/default/grub
 
 if [[ $bootmode == "bios" ]]; then
+    grub-mkconfig -o /boot/grub/grub.cfg
     grub-install --target=i386-pc --recheck $my_disk
 else
     grub-install --target=x86_64-efi --efi-directory=/boot --recheck
