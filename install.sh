@@ -37,6 +37,12 @@ sudo loadkeys us
 # Check boot mode
 [[ ! -d /sys/firmware/efi ]] && printf "Not booted in UEFI mode. Aborting..." && exit 1
 
+# Choose my_init
+until [[ $my_init == "openrc" || $my_init == "dinit" ]]; do
+    printf "Init system (openrc/dinit): " && read my_init
+    [[ ! $my_init ]] && my_init="openrc"
+done
+
 # Choose disk
 while :
 do
@@ -70,17 +76,17 @@ root_part=$part3
 [[ $my_fs == "ext4" ]] && root_part=$part2
 
 # Encrypt or not
-printf "Encrypt? (Y/n): " && read encrypted
-[[ ! $encrypted ]] && encrypted="y"
+printf "Encrypt? (y/N): " && read encrypted
+[[ ! $encrypted ]] && encrypted="n"
 
 my_root="/dev/mapper/root"
 my_swap="/dev/mapper/swap"
-if [[ $encrypted == "n" ]]; then
+if [[ $encrypted == "y" ]]; then
+    cryptpass=$(confirm_password "encryption password")
+else
     my_root=$part3
     my_swap=$part2
     [[ $my_fs == "ext4" ]] && my_root=$part2
-else
-    cryptpass=$(confirm_password "encryption password")
 fi
 [[ $my_fs == "ext4" ]] && my_swap="/dev/MyVolGrp/swap"
 
@@ -101,7 +107,7 @@ done
 root_password=$(confirm_password "root password")
 
 installvars () {
-    echo my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
+    echo my_init=$my_init my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
         swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted my_root=$my_root my_swap=$my_swap \
         region_city=$region_city my_hostname=$my_hostname \
         cryptpass=$cryptpass root_password=$root_password
