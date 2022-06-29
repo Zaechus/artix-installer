@@ -20,23 +20,19 @@
 # along with artix-installer. If not, see <https://www.gnu.org/licenses/>.
 
 # Partition disk
-if [[ $encrypted != "n" ]]; then
-    [[ $my_fs == "btrfs" ]] && fs_pkgs="cryptsetup cryptsetup-openrc btrfs-progs"
-    [[ $my_fs == "ext4" ]] && fs_pkgs="cryptsetup lvm2 lvm2-openrc"
-else
-    [[ $my_fs == "btrfs" ]] && fs_pkgs="btrfs-progs"
-    [[ $my_fs == "ext4" ]] && fs_pkgs="lvm2 lvm2-openrc"
-fi
-
 if [[ $my_fs == "ext4" ]]; then
     layout=",,V"
+    fs_pkgs="lvm2 lvm2-$my_init"
 elif [[ $my_fs == "btrfs" ]]; then
     layout=",$(echo $swap_size)G,S\n,,L"
+    fs_pkgs="btrfs-progs"
 fi
+[[ $encrypted == "y" ]] && fs_pkgs+=" cryptsetup cryptsetup-$my_init"
+
 printf "label: gpt\n,550M,U\n$layout\n" | sfdisk $my_disk
 
 # Format and mount partitions
-if [[ $encrypted != "n" ]]; then
+if [[ $encrypted == "y" ]]; then
     yes $cryptpass | cryptsetup -q luksFormat $root_part
     yes $cryptpass | cryptsetup open $root_part root
 
@@ -81,6 +77,6 @@ mount $part1 /mnt/boot
 [[ $(grep 'vendor' /proc/cpuinfo) == *"Amd"* ]] && ucode="amd-ucode"
 
 # Install base system and kernel
-basestrap /mnt base base-devel openrc elogind-openrc $fs_pkgs efibootmgr grub $ucode dhcpcd wpa_supplicant connman-openrc
+basestrap /mnt base base-devel $my_init elogind-$my_init $fs_pkgs efibootmgr grub $ucode dhcpcd wpa_supplicant connman-$my_init
 basestrap /mnt linux linux-firmware linux-headers mkinitcpio
 fstabgen -U /mnt > /mnt/etc/fstab
