@@ -62,16 +62,10 @@ sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
 if [[ $my_init == "openrc" ]]; then
     rc-update add connmand default
 elif [[ $my_init == "dinit" ]]; then
-    dinitctl enable connmand
+    ln -s /etc/dinit.d/connmand /etc/dinit.d/boot.d/
 fi
 
-if [[ $my_fs == "ext4" ]]; then
-    if [[ $my_init == "openrc" ]]; then
-        rc-update add lvm boot
-    elif [[ $my_init == "dinit" ]]; then
-        dinitctl enable lvm
-    fi
-fi
+[[ $my_fs == "ext4" && $my_init == "openrc" ]] && rc-update add lvm boot
 
 printf "\n$my_swap\t\tswap\t\tswap\t\tsw\t0 0\n" >> /etc/fstab
 
@@ -84,11 +78,7 @@ if [[ $encrypted == "y" && $my_fs == "btrfs" ]]; then
     yes $cryptpass | cryptsetup luksAddKey $part2 /root/.keyfiles/main
     printf "dmcrypt_key_timeout=1\ndmcrypt_retries=5\n\ntarget='swap'\nsource=UUID='$swap_uuid'\nkey='/root/.keyfiles/main'\n#\n" > /etc/conf.d/dmcrypt
 
-    if [[ $my_init == "openrc" ]]; then
-        rc-update add dmcrypt boot
-    elif [[ $my_init == "dinit" ]]; then
-        dinitctl enable dmcrypt
-    fi
+    [[ $my_init == "openrc" ]] && rc-update add dmcrypt boot
 fi
 
 # Configure mkinitcpio

@@ -6,7 +6,7 @@ A simple installer for Artix Linux
 
 ## Usage
 
-1. Boot into the Artix live disk
+1. Boot into the Artix live disk (the login and password are both `artix`).
 2. Connect to the internet. Ethernet is setup automatically, and wifi is done with something like:
 ```
 sudo rfkill unblock wifi
