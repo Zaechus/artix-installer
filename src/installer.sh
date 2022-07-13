@@ -24,7 +24,7 @@ if [[ $my_fs == "ext4" ]]; then
     layout=",,V"
     fs_pkgs="lvm2 lvm2-$my_init"
 elif [[ $my_fs == "btrfs" ]]; then
-    layout=",$(echo $swap_size)G,S\n,,L"
+    layout=",$(echo $swap_size)G,S\n,,"
     fs_pkgs="btrfs-progs"
 fi
 [[ $encrypted == "y" ]] && fs_pkgs+=" cryptsetup cryptsetup-$my_init"
