@@ -19,106 +19,104 @@
 # You should have received a copy of the GNU General Public License
 # along with artix-installer. If not, see <https://www.gnu.org/licenses/>.
 
-confirm_password () {
-    local pass1="a"
-    local pass2="b"
-    until [[ $pass1 == $pass2 && $pass2 ]]; do
-        printf "$1: " >&2 && read -rs pass1
-        printf "\n" >&2
-        printf "confirm $1: " >&2 && read -rs pass2
-        printf "\n" >&2
-    done
-    echo $pass2
+confirm_password() {
+	stty -echo
+	until [ "$pass1" = "$pass2" ] && [ "$pass2" ]; do
+		printf "%s: " "$1" >&2 && read -r pass1 && printf "\n" >&2
+		printf "confirm %s: " "$1" >&2 && read -r pass2 && printf "\n" >&2
+	done
+	stty echo
+	echo "$pass2"
 }
 
 # Load keymap
 sudo loadkeys us
 
 # Check boot mode
-[[ ! -d /sys/firmware/efi ]] && printf "Not booted in UEFI mode. Aborting..." && exit 1
+[ ! -d /sys/firmware/efi ] && printf "Not booted in UEFI mode. Aborting..." && exit 1
 
-# Choose my_init
-until [[ $my_init == "openrc" || $my_init == "dinit" ]]; do
-    printf "Init system (openrc/dinit): " && read my_init
-    [[ ! $my_init ]] && my_init="openrc"
+# Choose MY_INIT
+until [ "$MY_INIT" = "openrc" ] || [ "$MY_INIT" = "dinit" ]; do
+	printf "Init system (openrc/dinit): " && read -r MY_INIT
+	[ ! "$MY_INIT" ] && MY_INIT="openrc"
 done
 
 # Choose disk
-while :
-do
-    sudo fdisk -l
-    printf "\nDisk to install to (e.g. /dev/sda): " && read my_disk
-    [[ -b $my_disk ]] && break
+while :; do
+	sudo fdisk -l
+	printf "\nDisk to install to (e.g. /dev/sda): " && read -r MY_DISK
+	[ -b "$MY_DISK" ] && break
 done
 
-part1="$my_disk"1
-part2="$my_disk"2
-part3="$my_disk"3
-if [[ $my_disk == *"nvme"* ]]; then
-    part1="$my_disk"p1
-    part2="$my_disk"p2
-    part3="$my_disk"p3
-fi
+PART1="$MY_DISK"1
+PART2="$MY_DISK"2
+PART3="$MY_DISK"3
+case "$MY_DISK" in
+*"nvme"*)
+	PART1="$MY_DISK"p1
+	PART2="$MY_DISK"p2
+	PART3="$MY_DISK"p3
+	;;
+esac
 
 # Swap size
-until [[ $swap_size =~ ^[0-9]+$ && (($swap_size -gt 0)) && (($swap_size -lt 97)) ]]; do
-    printf "Size of swap partition in GiB (4): " && read swap_size
-    [[ ! $swap_size ]] && swap_size=4
+until (echo "$SWAP_SIZE" | grep -Eq "^[0-9]+$") && [ "$SWAP_SIZE" -gt 0 ] && [ "$SWAP_SIZE" -lt 97 ]; do
+	printf "Size of swap partition in GiB (4): " && read -r SWAP_SIZE
+	[ ! "$SWAP_SIZE" ] && SWAP_SIZE=4
 done
 
 # Choose filesystem
-until [[ $my_fs == "btrfs" || $my_fs == "ext4" ]]; do
-    printf "Filesystem (btrfs/ext4): " && read my_fs
-    [[ ! $my_fs ]] && my_fs="btrfs"
+until [ "$MY_FS" = "btrfs" ] || [ "$MY_FS" = "ext4" ]; do
+	printf "Filesystem (btrfs/ext4): " && read -r MY_FS
+	[ ! "$MY_FS" ] && MY_FS="btrfs"
 done
 
-root_part=$part3
-[[ $my_fs == "ext4" ]] && root_part=$part2
+ROOT_PART=$PART3
+[ "$MY_FS" = "ext4" ] && ROOT_PART=$PART2
 
 # Encrypt or not
-printf "Encrypt? (y/N): " && read encrypted
-[[ ! $encrypted ]] && encrypted="n"
+printf "Encrypt? (y/N): " && read -r ENCRYPTED
+[ ! "$ENCRYPTED" ] && ENCRYPTED="n"
 
-my_root="/dev/mapper/root"
-my_swap="/dev/mapper/swap"
-if [[ $encrypted == "y" ]]; then
-    cryptpass=$(confirm_password "encryption password")
+MY_ROOT="/dev/mapper/root"
+MY_SWAP="/dev/mapper/swap"
+if [ $ENCRYPTED = "y" ]; then
+	CRYPTPASS=$(confirm_password "encryption password")
 else
-    my_root=$part3
-    my_swap=$part2
-    [[ $my_fs == "ext4" ]] && my_root=$part2
+	MY_ROOT=$PART3
+	MY_SWAP=$PART2
+	[ "$MY_FS" = "ext4" ] && MY_ROOT=$PART2
 fi
-[[ $my_fs == "ext4" ]] && my_swap="/dev/MyVolGrp/swap"
+[ $MY_FS = "ext4" ] && MY_SWAP="/dev/MyVolGrp/swap"
 
 # Timezone
-until [[ -f /usr/share/zoneinfo/$region_city ]]; do
-    printf "Region/City (e.g. 'America/Denver'): " && read region_city
-    [[ ! $region_city ]] && region_city="America/Denver"
+until [ -f /usr/share/zoneinfo/"$REGION_CITY" ]; do
+	printf "Region/City (e.g. 'America/Denver'): " && read -r REGION_CITY
+	[ ! "$REGION_CITY" ] && REGION_CITY="America/Denver"
 done
 
 # Host
-while :
-do
-    printf "Hostname: " && read my_hostname
-    [[ $my_hostname ]] && break
+while :; do
+	printf "Hostname: " && read -r MY_HOSTNAME
+	[ "$MY_HOSTNAME" ] && break
 done
 
 # Users
-root_password=$(confirm_password "root password")
+ROOT_PASSWORD=$(confirm_password "root password")
 
-installvars () {
-    echo my_init=$my_init my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
-        swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted my_root=$my_root my_swap=$my_swap \
-        region_city=$region_city my_hostname=$my_hostname \
-        cryptpass=$cryptpass root_password=$root_password
+installvars() {
+	echo MY_INIT="$MY_INIT" MY_DISK="$MY_DISK" PART1="$PART1" PART2="$PART2" PART3="$PART3" \
+		SWAP_SIZE="$SWAP_SIZE" MY_FS="$MY_FS" ROOT_PART="$ROOT_PART" ENCRYPTED="$ENCRYPTED" MY_ROOT="$MY_ROOT" MY_SWAP="$MY_SWAP" \
+		REGION_CITY="$REGION_CITY" MY_HOSTNAME="$MY_HOSTNAME" \
+		CRYPTPASS="$CRYPTPASS" ROOT_PASSWORD="$ROOT_PASSWORD"
 }
 
 printf "\nDone with configuration. Installing...\n\n"
 
 # Install
-sudo $(installvars) sh src/installer.sh
+sudo "$(installvars)" sh src/installer.sh
 
 # Chroot
-sudo cp src/iamchroot.sh /mnt/root/ && \
-    sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' && \
-    printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
+sudo cp src/iamchroot.sh /mnt/root/ &&
+	sudo "$(installvars)" artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
+	printf '\nYou may now poweroff.\n'

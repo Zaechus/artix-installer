@@ -20,63 +20,69 @@
 # along with artix-installer. If not, see <https://www.gnu.org/licenses/>.
 
 # Partition disk
-if [[ $my_fs == "ext4" ]]; then
-    layout=",,V"
-    fs_pkgs="lvm2 lvm2-$my_init"
-elif [[ $my_fs == "btrfs" ]]; then
-    layout=",$(echo $swap_size)G,S\n,,"
-    fs_pkgs="btrfs-progs"
+if [ "$MY_FS" = "ext4" ]; then
+	layout=",,V"
+	fs_pkgs="lvm2 lvm2-$MY_INIT"
+elif [ "$MY_FS" = "btrfs" ]; then
+	layout=",${SWAP_SIZE}G,S\n,,"
+	fs_pkgs="btrfs-progs"
 fi
-[[ $encrypted == "y" ]] && fs_pkgs+=" cryptsetup cryptsetup-$my_init"
+[ "$ENCRYPTED" = "y" ] && fs_pkgs=$fs_pkgs+" cryptsetup cryptsetup-$MY_INIT"
 
-printf "label: gpt\n,550M,U\n$layout\n" | sfdisk $my_disk
+printf "label: gpt\n,550M,U\n%s\n" "$layout" | sfdisk "$MY_DISK"
 
 # Format and mount partitions
-if [[ $encrypted == "y" ]]; then
-    yes $cryptpass | cryptsetup -q luksFormat $root_part
-    yes $cryptpass | cryptsetup open $root_part root
+if [ "$ENCRYPTED" = "y" ]; then
+	yes "$CRYPTPASS" | cryptsetup -q luksFormat "$ROOT_PART"
+	yes "$CRYPTPASS" | cryptsetup open "$ROOT_PART" root
 
-    if [[ $my_fs == "btrfs" ]]; then
-        yes $cryptpass | cryptsetup -q luksFormat $part2
-        yes $cryptpass | cryptsetup open $part2 swap
-    fi
+	if [ "$MY_FS" = "btrfs" ]; then
+		yes "$CRYPTPASS" | cryptsetup -q luksFormat "$PART2"
+		yes "$CRYPTPASS" | cryptsetup open "$PART2" swap
+	fi
 fi
 
-mkfs.fat -F 32 $part1
+mkfs.fat -F 32 "$PART1"
 
-if [[ $my_fs == "ext4" ]]; then
-    # Setup LVM
-    pvcreate $my_root
-    vgcreate MyVolGrp $my_root
-    lvcreate -L $(echo $swap_size)G MyVolGrp -n swap
-    lvcreate -l 100%FREE MyVolGrp -n root
+if [ "$MY_FS" = "ext4" ]; then
+	# Setup LVM
+	pvcreate "$MY_ROOT"
+	vgcreate MyVolGrp "$MY_ROOT"
+	lvcreate -L "$SWAP_SIZE"G MyVolGrp -n swap
+	lvcreate -l 100%FREE MyVolGrp -n root
 
-    mkfs.ext4 /dev/MyVolGrp/root
+	mkfs.ext4 /dev/MyVolGrp/root
 
-    mount /dev/MyVolGrp/root /mnt
-elif [[ $my_fs == "btrfs" ]]; then
-    mkfs.btrfs $my_root
+	mount /dev/MyVolGrp/root /mnt
+elif [ "$MY_FS" = "btrfs" ]; then
+	mkfs.btrfs "$MY_ROOT"
 
-    # Create subvolumes
-    mount $my_root /mnt
-    btrfs subvolume create /mnt/root
-    btrfs subvolume create /mnt/home
-    umount -R /mnt
+	# Create subvolumes
+	mount "$MY_ROOT" /mnt
+	btrfs subvolume create /mnt/root
+	btrfs subvolume create /mnt/home
+	umount -R /mnt
 
-    # Mount subvolumes
-    mount -t btrfs -o compress=zstd,subvol=root $my_root /mnt
-    mkdir /mnt/home
-    mount -t btrfs -o compress=zstd,subvol=home $my_root /mnt/home
+	# Mount subvolumes
+	mount -t btrfs -o compress=zstd,subvol=root "$MY_ROOT" /mnt
+	mkdir /mnt/home
+	mount -t btrfs -o compress=zstd,subvol=home "$MY_ROOT" /mnt/home
 fi
 
-mkswap $my_swap
+mkswap "$MY_SWAP"
 mkdir /mnt/boot
-mount $part1 /mnt/boot
+mount "$PART1" /mnt/boot
 
-[[ $(grep 'vendor' /proc/cpuinfo) == *"Intel"* ]] && ucode="intel-ucode"
-[[ $(grep 'vendor' /proc/cpuinfo) == *"Amd"* ]] && ucode="amd-ucode"
+case $(grep vendor /proc/cpuinfo) in
+*"Intel"*)
+	ucode="intel-ucode"
+	;;
+*"Amd"*)
+	ucode="amd-ucode"
+	;;
+esac
 
 # Install base system and kernel
-basestrap /mnt base base-devel $my_init elogind-$my_init $fs_pkgs efibootmgr grub $ucode dhcpcd wpa_supplicant connman-$my_init
+basestrap /mnt base base-devel "$MY_INIT" elogind-"$MY_INIT" "$fs_pkgs" efibootmgr grub "$ucode" dhcpcd wpa_supplicant connman-"$MY_INIT"
 basestrap /mnt linux linux-firmware linux-headers mkinitcpio
-fstabgen -U /mnt > /mnt/etc/fstab
+fstabgen -U /mnt >/mnt/etc/fstab
