@@ -43,7 +43,9 @@ done
 
 # Choose disk
 while :; do
+	echo
 	sudo fdisk -l
+	printf "\nWarning: the selected disk will be rewritten.\n"
 	printf "\nDisk to install to (e.g. /dev/sda): " && read -r MY_DISK
 	[ -b "$MY_DISK" ] && break
 done
@@ -80,14 +82,14 @@ printf "Encrypt? (y/N): " && read -r ENCRYPTED
 
 MY_ROOT="/dev/mapper/root"
 MY_SWAP="/dev/mapper/swap"
-if [ $ENCRYPTED = "y" ]; then
+if [ "$ENCRYPTED" = "y" ]; then
 	CRYPTPASS=$(confirm_password "encryption password")
 else
 	MY_ROOT=$PART3
 	MY_SWAP=$PART2
 	[ "$MY_FS" = "ext4" ] && MY_ROOT=$PART2
 fi
-[ $MY_FS = "ext4" ] && MY_SWAP="/dev/MyVolGrp/swap"
+[ "$MY_FS" = "ext4" ] && MY_SWAP="/dev/MyVolGrp/swap"
 
 # Timezone
 until [ -f /usr/share/zoneinfo/"$REGION_CITY" ]; do
