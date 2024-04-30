@@ -106,19 +106,19 @@ done
 # Users
 ROOT_PASSWORD=$(confirm_password "root password")
 
-installvars() {
-	echo MY_INIT="$MY_INIT" MY_DISK="$MY_DISK" PART1="$PART1" PART2="$PART2" PART3="$PART3" \
-		SWAP_SIZE="$SWAP_SIZE" MY_FS="$MY_FS" ROOT_PART="$ROOT_PART" ENCRYPTED="$ENCRYPTED" MY_ROOT="$MY_ROOT" MY_SWAP="$MY_SWAP" \
-		REGION_CITY="$REGION_CITY" MY_HOSTNAME="$MY_HOSTNAME" \
-		CRYPTPASS="$CRYPTPASS" ROOT_PASSWORD="$ROOT_PASSWORD"
-}
-
 printf "\nDone with configuration. Installing...\n\n"
 
 # Install
-sudo "$(installvars)" sh src/installer.sh
+sudo MY_INIT="$MY_INIT" MY_DISK="$MY_DISK" PART1="$PART1" PART2="$PART2" \
+	SWAP_SIZE="$SWAP_SIZE" MY_FS="$MY_FS" ROOT_PART="$ROOT_PART" \
+	ENCRYPTED="$ENCRYPTED" MY_ROOT="$MY_ROOT" MY_SWAP="$MY_SWAP" \
+	CRYPTPASS="$CRYPTPASS" \
+	sh src/installer.sh
 
 # Chroot
 sudo cp src/iamchroot.sh /mnt/root/ &&
-	sudo "$(installvars)" artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
+	sudo MY_INIT="$MY_INIT" PART2="$PART2" MY_FS="$MY_FS" ROOT_PART="$ROOT_PART" \
+		ENCRYPTED="$ENCRYPTED" MY_SWAP="$MY_SWAP" REGION_CITY="$REGION_CITY" \
+		MY_HOSTNAME="$MY_HOSTNAME" CRYPTPASS="$CRYPTPASS" ROOT_PASSWORD="$ROOT_PASSWORD" \
+		artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
 	printf '\nYou may now poweroff.\n'

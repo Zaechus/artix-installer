@@ -24,7 +24,8 @@ if [ "$MY_FS" = "ext4" ]; then
 	layout=",,V"
 	fs_pkgs="lvm2 lvm2-$MY_INIT"
 elif [ "$MY_FS" = "btrfs" ]; then
-	layout=",${SWAP_SIZE}G,S\n,,"
+	layout=",${SWAP_SIZE}G,S
+,,"
 	fs_pkgs="btrfs-progs"
 fi
 [ "$ENCRYPTED" = "y" ] && fs_pkgs=$fs_pkgs+" cryptsetup cryptsetup-$MY_INIT"
