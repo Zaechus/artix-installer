@@ -35,15 +35,10 @@ printf 'hostname="%s"\n' "$MY_HOSTNAME" >/etc/conf.d/hostname
 printf "\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t%s.localdomain\t%s\n" "$MY_HOSTNAME" "$MY_HOSTNAME" >/etc/hosts
 
 # Install boot loader
-ROOT_PART_uuid=$(blkid "$ROOT_PART" -o value -s UUID)
+root_uuid=$(blkid "$PART2" -o value -s UUID)
 
 if [ "$ENCRYPTED" = "y" ]; then
-	my_params="cryptdevice=UUID=$ROOT_PART_uuid:root root=\/dev\/mapper\/root"
-	if [ "$MY_FS" = "ext4" ]; then
-		my_params="cryptdevice=UUID=$ROOT_PART_uuid:root root=\/dev\/MyVolGrp\/root"
-	fi
-elif [ "$MY_FS" = "ext4" ]; then
-	my_params="root=\/dev\/MyVolGrp\/root"
+	my_params="cryptdevice=UUID=$root_uuid:root root=\/dev\/mapper\/root"
 fi
 
 sed -i "s/^GRUB_CMDLINE_LINUX_DEFAULT.*$/GRUB_CMDLINE_LINUX_DEFAULT=\"$my_params\"/g" /etc/default/grub
@@ -65,36 +60,14 @@ elif [ "$MY_INIT" = "dinit" ]; then
 	ln -s /etc/dinit.d/connmand /etc/dinit.d/boot.d/
 fi
 
-[ "$MY_FS" = "ext4" ] && [ "$MY_INIT" = "openrc" ] && rc-update add lvm boot
-
-printf "\n%s\t\tswap\t\tswap\t\tsw\t0 0\n" "$MY_SWAP" >>/etc/fstab
-
-if [ "$ENCRYPTED" = "y" ] && [ "$MY_FS" = "btrfs" ]; then
-	swap_uuid=$(blkid "$PART2" -o value -s UUID)
-
-	mkdir /root/.keyfiles
-	chmod 0400 /root/.keyfiles
-	dd if=/dev/urandom of=/root/.keyfiles/main bs=1024 count=4
-	yes "$CRYPTPASS" | cryptsetup luksAddKey "$PART2" /root/.keyfiles/main
-	printf "dmcrypt_key_timeout=1\ndmcrypt_retries=5\n\ntarget='swap'\nsource=UUID='%s'\nkey='/root/.keyfiles/main'\n#\n" "$swap_uuid" >/etc/conf.d/dmcrypt
-
-	[ "$MY_INIT" = "openrc" ] && rc-update add dmcrypt boot
-fi
+printf "\n/swap/swapfile\t\tswap\t\tswap\t\tsw\t0 0\n" >>/etc/fstab
 
 # Configure mkinitcpio
-if [ "$MY_FS" = "ext4" ]; then
-	if [ "$ENCRYPTED" = "y" ]; then
-		sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf
-	else
-		sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf
-	fi
-elif [ "$MY_FS" = "btrfs" ]; then
-	sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/g' /etc/mkinitcpio.conf
-	if [ "$ENCRYPTED" = "y" ]; then
-		sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt filesystems fsck)/g' /etc/mkinitcpio.conf
-	else
-		sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block filesystems fsck)/g' /etc/mkinitcpio.conf
-	fi
+[ "$MY_FS" = "btrfs" ] && sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/g' /etc/mkinitcpio.conf
+if [ "$ENCRYPTED" = "y" ]; then
+	sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block encrypt filesystems fsck)/g' /etc/mkinitcpio.conf
+else
+	sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect keyboard keymap modconf block filesystems fsck)/g' /etc/mkinitcpio.conf
 fi
 
 mkinitcpio -P

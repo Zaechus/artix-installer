@@ -20,43 +20,27 @@
 # along with artix-installer. If not, see <https://www.gnu.org/licenses/>.
 
 pkgs="base base-devel $MY_INIT elogind-$MY_INIT efibootmgr grub dhcpcd wpa_supplicant connman-$MY_INIT"
-
-# Partition disk
-if [ "$MY_FS" = "ext4" ]; then
-	layout=",,V"
-	pkgs="$pkgs lvm2 lvm2-$MY_INIT"
-elif [ "$MY_FS" = "btrfs" ]; then
-	layout=",${SWAP_SIZE}G,S
-,,"
-	pkgs="$pkgs btrfs-progs"
-fi
+[ "$MY_FS" = "btrfs" ] && pkgs="$pkgs btrfs-progs"
 [ "$ENCRYPTED" = "y" ] && pkgs="$pkgs cryptsetup cryptsetup-$MY_INIT"
 
-printf "label: gpt\n,550M,U\n%s\n" "$layout" | sfdisk "$MY_DISK"
+# Partition disk
+printf "label: gpt\n,550M,U\n,,\n" | sfdisk "$MY_DISK"
 
 # Format and mount partitions
 if [ "$ENCRYPTED" = "y" ]; then
-	yes "$CRYPTPASS" | cryptsetup -q luksFormat "$ROOT_PART"
-	yes "$CRYPTPASS" | cryptsetup open "$ROOT_PART" root
-
-	if [ "$MY_FS" = "btrfs" ]; then
-		yes "$CRYPTPASS" | cryptsetup -q luksFormat "$PART2"
-		yes "$CRYPTPASS" | cryptsetup open "$PART2" swap
-	fi
+	yes "$CRYPTPASS" | cryptsetup -q luksFormat "$PART2"
+	yes "$CRYPTPASS" | cryptsetup open "$PART2" root
 fi
 
 mkfs.fat -F 32 "$PART1"
 
 if [ "$MY_FS" = "ext4" ]; then
-	# Setup LVM
-	pvcreate "$MY_ROOT"
-	vgcreate MyVolGrp "$MY_ROOT"
-	lvcreate -L "$SWAP_SIZE"G MyVolGrp -n swap
-	lvcreate -l 100%FREE MyVolGrp -n root
+	mkfs.ext4 "$MY_ROOT"
+	mount "$MY_ROOT" /mnt
 
-	mkfs.ext4 /dev/MyVolGrp/root
-
-	mount /dev/MyVolGrp/root /mnt
+	# Create swapfile
+	mkdir /mnt/swap
+	mkswap -U clear --size "$SWAP_SIZE"G --file /mnt/swap/swapfile
 elif [ "$MY_FS" = "btrfs" ]; then
 	mkfs.btrfs -f "$MY_ROOT"
 
@@ -64,15 +48,20 @@ elif [ "$MY_FS" = "btrfs" ]; then
 	mount "$MY_ROOT" /mnt
 	btrfs subvolume create /mnt/root
 	btrfs subvolume create /mnt/home
+	btrfs subvolume create /mnt/swap
 	umount -R /mnt
 
 	# Mount subvolumes
 	mount -t btrfs -o compress=zstd,subvol=root "$MY_ROOT" /mnt
 	mkdir /mnt/home
+	mkdir /mnt/swap
 	mount -t btrfs -o compress=zstd,subvol=home "$MY_ROOT" /mnt/home
+	mount -t btrfs -o noatime,nodatacow,subvol=swap "$MY_ROOT" /mnt/swap
+
+	# Create swapfile
+	btrfs filesystem mkswapfile -s "$SWAP_SIZE"G /mnt/swap/swapfile
 fi
 
-mkswap "$MY_SWAP"
 mkdir /mnt/boot
 mount "$PART1" /mnt/boot
 
