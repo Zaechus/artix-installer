@@ -56,7 +56,7 @@ if [ "$MY_FS" = "ext4" ]; then
 
 	mount /dev/MyVolGrp/root /mnt
 elif [ "$MY_FS" = "btrfs" ]; then
-	mkfs.btrfs "$MY_ROOT"
+	mkfs.btrfs -f "$MY_ROOT"
 
 	# Create subvolumes
 	mount "$MY_ROOT" /mnt
