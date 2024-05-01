@@ -19,16 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with artix-installer. If not, see <https://www.gnu.org/licenses/>.
 
+pkgs="base base-devel $MY_INIT elogind-$MY_INIT efibootmgr grub dhcpcd wpa_supplicant connman-$MY_INIT"
+
 # Partition disk
 if [ "$MY_FS" = "ext4" ]; then
 	layout=",,V"
-	fs_pkgs="lvm2 lvm2-$MY_INIT"
+	pkgs="$pkgs lvm2 lvm2-$MY_INIT"
 elif [ "$MY_FS" = "btrfs" ]; then
 	layout=",${SWAP_SIZE}G,S
 ,,"
-	fs_pkgs="btrfs-progs"
+	pkgs="$pkgs btrfs-progs"
 fi
-[ "$ENCRYPTED" = "y" ] && fs_pkgs=$fs_pkgs+" cryptsetup cryptsetup-$MY_INIT"
+[ "$ENCRYPTED" = "y" ] && pkgs="$pkgs cryptsetup cryptsetup-$MY_INIT"
 
 printf "label: gpt\n,550M,U\n%s\n" "$layout" | sfdisk "$MY_DISK"
 
@@ -76,14 +78,20 @@ mount "$PART1" /mnt/boot
 
 case $(grep vendor /proc/cpuinfo) in
 *"Intel"*)
-	ucode="intel-ucode"
+	pkgs="$pkgs intel-ucode"
 	;;
 *"Amd"*)
-	ucode="amd-ucode"
+	pkgs="$pkgs amd-ucode"
 	;;
 esac
 
+unset --
+IFS=" "
+for pkg in $pkgs; do
+	set -- "$@" "$pkg"
+done
+
 # Install base system and kernel
-basestrap /mnt base base-devel "$MY_INIT" elogind-"$MY_INIT" "$fs_pkgs" efibootmgr grub "$ucode" dhcpcd wpa_supplicant connman-"$MY_INIT"
+basestrap /mnt "$@"
 basestrap /mnt linux linux-firmware linux-headers mkinitcpio
 fstabgen -U /mnt >/mnt/etc/fstab
