@@ -113,12 +113,12 @@ sudo MY_INIT="$MY_INIT" MY_DISK="$MY_DISK" PART1="$PART1" PART2="$PART2" \
 	SWAP_SIZE="$SWAP_SIZE" MY_FS="$MY_FS" ROOT_PART="$ROOT_PART" \
 	ENCRYPTED="$ENCRYPTED" MY_ROOT="$MY_ROOT" MY_SWAP="$MY_SWAP" \
 	CRYPTPASS="$CRYPTPASS" \
-	sh src/installer.sh
+	./src/installer.sh
 
 # Chroot
 sudo cp src/iamchroot.sh /mnt/root/ &&
 	sudo MY_INIT="$MY_INIT" PART2="$PART2" MY_FS="$MY_FS" ROOT_PART="$ROOT_PART" \
 		ENCRYPTED="$ENCRYPTED" MY_SWAP="$MY_SWAP" REGION_CITY="$REGION_CITY" \
 		MY_HOSTNAME="$MY_HOSTNAME" CRYPTPASS="$CRYPTPASS" ROOT_PASSWORD="$ROOT_PASSWORD" \
-		artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
+		artix-chroot /mnt sh -c './root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
 	printf '\nYou may now poweroff.\n'
