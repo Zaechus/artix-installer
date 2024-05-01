@@ -42,12 +42,11 @@ until [ "$MY_INIT" = "openrc" ] || [ "$MY_INIT" = "dinit" ]; do
 done
 
 # Choose disk
-while :; do
+until [ -b "$MY_DISK" ]; do
 	echo
 	sudo fdisk -l
 	printf "\nWarning: the selected disk will be rewritten.\n"
 	printf "\nDisk to install to (e.g. /dev/sda): " && read -r MY_DISK
-	[ -b "$MY_DISK" ] && break
 done
 
 PART1="$MY_DISK"1
@@ -77,8 +76,10 @@ ROOT_PART=$PART3
 [ "$MY_FS" = "ext4" ] && ROOT_PART=$PART2
 
 # Encrypt or not
-printf "Encrypt? (y/N): " && read -r ENCRYPTED
-[ ! "$ENCRYPTED" ] && ENCRYPTED="n"
+until [ "$ENCRYPTED" ]; do
+	printf "Encrypt? (y/N): " && read -r ENCRYPTED
+	[ ! "$ENCRYPTED" ] && ENCRYPTED="n"
+done
 
 MY_ROOT="/dev/mapper/root"
 MY_SWAP="/dev/mapper/swap"
@@ -98,9 +99,8 @@ until [ -f /usr/share/zoneinfo/"$REGION_CITY" ]; do
 done
 
 # Host
-while :; do
+until [ "$MY_HOSTNAME" ]; do
 	printf "Hostname: " && read -r MY_HOSTNAME
-	[ "$MY_HOSTNAME" ] && break
 done
 
 # Users
