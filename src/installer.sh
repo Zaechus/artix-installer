@@ -40,7 +40,9 @@ if [ "$MY_FS" = "ext4" ]; then
 
 	# Create swapfile
 	mkdir /mnt/swap
-	mkswap -U clear --size "$SWAP_SIZE"G --file /mnt/swap/swapfile
+	fallocate -l "$SWAP_SIZE"G /mnt/swap/swapfile
+	chmod 600 /mnt/swap/swapfile
+	mkswap /mnt/swap/swapfile
 elif [ "$MY_FS" = "btrfs" ]; then
 	mkfs.btrfs -f "$MY_ROOT"
 
