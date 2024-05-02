@@ -39,7 +39,7 @@ printf "KEYMAP=%s\n" "$MY_KEYMAP" >/etc/vconsole.conf
 
 # Host stuff
 printf '%s\n' "$MY_HOSTNAME" >/etc/hostname
-printf 'hostname="%s"\n' "$MY_HOSTNAME" >/etc/conf.d/hostname
+[ "$MY_INIT" = "openrc" ] && printf 'hostname="%s"\n' "$MY_HOSTNAME" >/etc/conf.d/hostname
 printf "\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t%s.localdomain\t%s\n" "$MY_HOSTNAME" "$MY_HOSTNAME" >/etc/hosts
 
 # Install boot loader

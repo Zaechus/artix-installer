@@ -115,5 +115,5 @@ sudo cp src/iamchroot.sh /mnt/root/ &&
 	sudo MY_INIT="$MY_INIT" PART2="$PART2" MY_FS="$MY_FS" ENCRYPTED="$ENCRYPTED" \
 		REGION_CITY="$REGION_CITY" MY_HOSTNAME="$MY_HOSTNAME" CRYPTPASS="$CRYPTPASS" \
 		ROOT_PASSWORD="$ROOT_PASSWORD" MY_KEYMAP="$MY_KEYMAP" \
-		artix-chroot /mnt sh -c './root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
+		artix-chroot /mnt sh -ec './root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
 	printf '\nYou may now poweroff.\n'
