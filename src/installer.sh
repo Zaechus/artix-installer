@@ -35,7 +35,7 @@ fi
 mkfs.fat -F 32 "$PART1"
 
 if [ "$MY_FS" = "ext4" ]; then
-	mkfs.ext4 "$MY_ROOT"
+	yes | mkfs.ext4 "$MY_ROOT"
 	mount "$MY_ROOT" /mnt
 
 	# Create swapfile
