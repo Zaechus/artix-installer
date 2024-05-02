@@ -30,10 +30,21 @@ confirm_password() {
 }
 
 # Load keymap
-until [ "$MY_KEYMAP" = "us" ] || [ "$MY_KEYMAP" = "de" ]; do
-	printf "Keymap (us/de): " && read -r MY_KEYMAP
-	[ ! "$MY_KEYMAP" ] && MY_KEYMAP="us"
+until grep "^#*$LANGCODE\.UTF-8 UTF-8  $" /etc/locale.gen; do
+	printf "Language (en_US, de_DE, etc.): " && read -r LANGCODE
+	[ ! "$LANGCODE" ] && LANGCODE="en_US"
 done
+case "$LANGCODE" in
+"en_GB")
+	MY_KEYMAP="uk"
+	;;
+"en_US")
+	MY_KEYMAP="us"
+	;;
+*)
+	MY_KEYMAP="de"
+	;;
+esac
 sudo loadkeys "$MY_KEYMAP"
 
 # Check boot mode
@@ -114,6 +125,6 @@ sudo MY_INIT="$MY_INIT" MY_DISK="$MY_DISK" PART1="$PART1" PART2="$PART2" \
 sudo cp src/iamchroot.sh /mnt/root/ &&
 	sudo MY_INIT="$MY_INIT" PART2="$PART2" MY_FS="$MY_FS" ENCRYPTED="$ENCRYPTED" \
 		REGION_CITY="$REGION_CITY" MY_HOSTNAME="$MY_HOSTNAME" CRYPTPASS="$CRYPTPASS" \
-		ROOT_PASSWORD="$ROOT_PASSWORD" MY_KEYMAP="$MY_KEYMAP" \
+		ROOT_PASSWORD="$ROOT_PASSWORD" LANGCODE="$LANGCODE" MY_KEYMAP="$MY_KEYMAP" \
 		artix-chroot /mnt sh -ec './root/iamchroot.sh; rm /root/iamchroot.sh; exit' &&
 	printf '\nYou may now poweroff.\n'
