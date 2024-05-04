@@ -30,7 +30,7 @@ confirm_password() {
 }
 
 # Load keymap
-until grep "^#*$LANGCODE\.UTF-8 UTF-8  $" /etc/locale.gen; do
+until grep -q "^#*$LANGCODE\.UTF-8 UTF-8  $" /etc/locale.gen; do
 	printf "Language (en_US, de_DE, etc.): " && read -r LANGCODE
 	[ ! "$LANGCODE" ] && LANGCODE="en_US"
 done
@@ -42,7 +42,7 @@ case "$LANGCODE" in
 	MY_KEYMAP="us"
 	;;
 *)
-	MY_KEYMAP="de"
+	MY_KEYMAP=$(echo "$LANGCODE" | cut -c1-2)
 	;;
 esac
 sudo loadkeys "$MY_KEYMAP"
