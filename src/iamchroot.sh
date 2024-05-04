@@ -55,12 +55,11 @@ sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
 
 # Other stuff you should do
 if [ "$MY_INIT" = "openrc" ]; then
+	sed -i '/rc_need="localmount"/s/^#//g' /etc/conf.d/swap
 	rc-update add connmand default
 elif [ "$MY_INIT" = "dinit" ]; then
 	ln -s /etc/dinit.d/connmand /etc/dinit.d/boot.d/
 fi
-
-printf "\n/swap/swapfile\t\tswap\t\tswap\t\tsw\t0 0\n" >>/etc/fstab
 
 # Configure mkinitcpio
 [ "$MY_FS" = "btrfs" ] && sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/g' /etc/mkinitcpio.conf

@@ -64,6 +64,8 @@ elif [ "$MY_FS" = "btrfs" ]; then
 	btrfs filesystem mkswapfile -s "$SWAP_SIZE"G /mnt/swap/swapfile
 fi
 
+swapon /mnt/swap/swapfile
+
 mkdir /mnt/boot
 mount "$PART1" /mnt/boot
 
