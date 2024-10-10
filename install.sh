@@ -71,6 +71,10 @@ case "$MY_DISK" in
 	PART1="$MY_DISK"p1
 	PART2="$MY_DISK"p2
 	;;
+*"mmcblk"*)
+    PART1="$MY_DISK"p1
+    PART2="$MY_DISK"p2
+    ;;
 esac
 
 # Swap size
