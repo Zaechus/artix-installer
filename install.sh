@@ -67,14 +67,10 @@ done
 PART1="$MY_DISK"1
 PART2="$MY_DISK"2
 case "$MY_DISK" in
-*"nvme"*)
+*"nvme"* | *"mmcblk"*)
 	PART1="$MY_DISK"p1
 	PART2="$MY_DISK"p2
 	;;
-*"mmcblk"*)
-    PART1="$MY_DISK"p1
-    PART2="$MY_DISK"p2
-    ;;
 esac
 
 # Swap size
